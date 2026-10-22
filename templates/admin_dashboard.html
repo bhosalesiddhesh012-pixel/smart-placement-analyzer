@@ -1,0 +1,807 @@
+{% extends 'base.html' %}
+{% block title %}TPO Administration & Institutional Analytics | Smart Placement Analyser{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Admin Header Banner -->
+    <div class="bg-gradient-to-r from-purple-900/80 via-slate-800 to-indigo-900/80 border border-purple-400/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/25 text-purple-200 border border-purple-400/40 text-xs font-mono font-semibold mb-2">
+                    <i class="fa-solid fa-shield-halved"></i> Placement Cell Administration (RBAC Active)
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    Institutional Placement Analytics & Dynamic Criteria Engine
+                </h1>
+                <p class="text-xs text-slate-300 mt-1 max-w-2xl">
+                    Vishwakarma Institute of Technology | Supervise student cohort readiness, configure dynamic recruiter eligibility cutoffs, and monitor institutional hiring metrics.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4 High-Level KPI Summary Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg hover:border-indigo-400/50 transition-all">
+            <div class="flex items-center justify-between text-slate-300 text-xs mb-2 font-medium">
+                <span>Registered Students</span>
+                <i class="fa-solid fa-user-graduate text-indigo-400"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-white">{{ total_students }}</div>
+            <div class="text-[11px] text-slate-300 mt-1 font-mono">Computer Engineering Cohort</div>
+        </div>
+
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg hover:border-emerald-400/50 transition-all">
+            <div class="flex items-center justify-between text-slate-300 text-xs mb-2 font-medium">
+                <span>Mean Readiness Index</span>
+                <i class="fa-solid fa-gauge-high text-emerald-400"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-emerald-400">{{ avg_readiness }}<span class="text-sm font-normal text-slate-300">/100</span></div>
+            <div class="text-[11px] text-slate-300 mt-1">Cohort benchmark score</div>
+        </div>
+
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg hover:border-amber-400/50 transition-all">
+            <div class="flex items-center justify-between text-slate-300 text-xs mb-2 font-medium">
+                <span>Mean Student CGPA</span>
+                <i class="fa-solid fa-award text-amber-400"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-amber-400">{{ avg_cgpa }}</div>
+            <div class="text-[11px] text-slate-300 mt-1">Academic grade average</div>
+        </div>
+
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg hover:border-purple-400/50 transition-all">
+            <div class="flex items-center justify-between text-slate-300 text-xs mb-2 font-medium">
+                <span>Active Recruitment Drives</span>
+                <i class="fa-solid fa-briefcase text-purple-400"></i>
+            </div>
+            <div class="text-3xl font-extrabold text-purple-400">{{ total_drives }}</div>
+            <div class="text-[11px] text-slate-300 mt-1">Live campus drives</div>
+        </div>
+    </div>
+
+    <!-- Institutional Placement Analytics: Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- 5-Year Institutional Placement & Package Trends -->
+        <div class="lg:col-span-8 bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-700">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-indigo-400"></i>
+                        5-Year Institutional Placement & Salary Package Trends
+                    </h2>
+                    <p class="text-xs text-slate-300">Average package (LPA) and placement percentage trajectory at VIT.</p>
+                </div>
+            </div>
+            <div class="h-72 w-full relative">
+                <canvas id="trendsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Student Readiness Tier Distribution -->
+        <div class="lg:col-span-4 bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4 flex flex-col justify-between">
+            <div class="pb-3 border-b border-slate-700">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-purple-400"></i>
+                    Cohort Readiness Tier Distribution
+                </h2>
+                <p class="text-xs text-slate-300">Categorization from the Random Forest ML classifier.</p>
+            </div>
+            <div class="h-56 w-full relative flex items-center justify-center">
+                <canvas id="tierDoughnut"></canvas>
+            </div>
+            <div class="pt-2 border-t border-slate-700/80 text-center text-xs text-slate-300 font-mono">
+                Real-time multi-class classification
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Live Student Drive Applications & TPO Review -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4" id="applications-tab">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-700 gap-2">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-emerald-400"></i>
+                    Student Drive Applications & Placement Review ({{ applications|length }})
+                </h2>
+                <p class="text-xs text-slate-300">Live incoming student applications verified against dynamic criteria. Automated alerts dispatched via Python smtplib.</p>
+            </div>
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full font-mono font-medium">
+                {{ applications|length }} Active Submissions
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="text-[11px] uppercase tracking-wider text-slate-400 bg-slate-900/60 border-b border-slate-800">
+                    <tr>
+                        <th class="py-3 px-4">Applicant (Student & Roll)</th>
+                        <th class="py-3 px-4">Company & Target Role</th>
+                        <th class="py-3 px-4">AI Readiness Score</th>
+                        <th class="py-3 px-4">Academic & Coding</th>
+                        <th class="py-3 px-4">Applied Timestamp</th>
+                        <th class="py-3 px-4 text-center whitespace-nowrap">Application Status</th>
+                        <th class="py-3 px-4 text-center whitespace-nowrap">TPO Decision</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    {% for a in applications %}
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-white text-sm">{{ a.student_name }}</div>
+                            <div class="text-[11px] text-slate-400">Roll: {{ a.roll_no }} | PRN: {{ a.gr_no }}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-emerald-400 text-sm">{{ a.company_name }}</div>
+                            <div class="text-[11px] text-slate-300">{{ a.job_role }} (₹{{ a.package_lpa }} LPA)</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-mono font-bold text-indigo-400 text-sm">{{ a.placement_readiness_index }} / 100</div>
+                            <span class="text-[10px] px-2 py-0.5 rounded font-mono font-semibold
+                                {% if a.target_tier == 'Tier 1 Product' %}bg-purple-500/20 text-purple-300 border border-purple-500/30
+                                {% elif a.target_tier == 'Tier 2 Core' %}bg-blue-500/20 text-blue-300 border border-blue-500/30
+                                {% elif a.target_tier == 'Mass Recruiter' %}bg-amber-500/20 text-amber-300 border border-amber-500/30
+                                {% else %}bg-rose-500/20 text-rose-300 border border-rose-500/30{% endif %}">
+                                {{ a.target_tier }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 space-y-0.5 font-mono text-[11px]">
+                            <div>CGPA: <strong class="text-white">{{ a.cgpa }}</strong></div>
+                            <div>DSA: <strong class="text-white">{{ a.dsa_score }}%</strong></div>
+                        </td>
+                        <td class="py-3 px-4 text-slate-400 font-mono text-[11px]">
+                            {{ a.applied_at }}
+                        </td>
+                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                            <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap tracking-tight
+                                {% if a.application_status == 'Shortlisted' %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40
+                                {% elif a.application_status == 'Interview Scheduled' %}bg-blue-500/20 text-blue-300 border border-blue-500/40
+                                {% elif a.application_status == 'Offered' %}bg-purple-500/20 text-purple-300 border border-purple-500/40
+                                {% elif a.application_status == 'Rejected' %}bg-rose-500/20 text-rose-300 border border-rose-500/40
+                                {% else %}bg-amber-500/20 text-amber-300 border border-amber-500/40{% endif %}">
+                                {{ a.application_status }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center whitespace-nowrap">
+                            <form method="POST" action="{{ url_for('admin_update_application_status', app_id=a.id) }}" class="inline-flex items-center justify-center">
+                                <select name="status" onchange="this.form.submit()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-indigo-500 cursor-pointer min-w-[145px]">
+                                    <option value="Pending TPO Review" {% if a.application_status == 'Pending TPO Review' %}selected{% endif %}>Pending</option>
+                                    <option value="Shortlisted" {% if a.application_status == 'Shortlisted' %}selected{% endif %}>Shortlist</option>
+                                    <option value="Interview Scheduled" {% if a.application_status == 'Interview Scheduled' %}selected{% endif %}>Schedule Interview</option>
+                                    <option value="Offered" {% if a.application_status == 'Offered' %}selected{% endif %}>Extend Offer</option>
+                                    <option value="Rejected" {% if a.application_status == 'Rejected' %}selected{% endif %}>Reject</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="py-8 text-center text-slate-400">
+                            <i class="fa-solid fa-inbox text-2xl mb-2 block text-slate-600"></i>
+                            No student applications submitted yet. Eligible students can apply via the Campus Drives portal.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Student Document Vault & Proof Verification Panel -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4" id="documents-tab">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-700 gap-2">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-purple-400"></i>
+                    Student Document Vault & Automated Proof Verification ({{ student_documents|length }})
+                </h2>
+                <p class="text-xs text-slate-300">Review student-uploaded marksheets & certificates. One-click verification officially locks profile metrics against fraudulent tampering.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1 rounded-full font-mono font-medium">
+                    {{ student_documents|selectattr('is_verified', 'equalto', 0)|list|length }} Pending Verification
+                </span>
+                <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full font-mono font-medium">
+                    {{ student_documents|selectattr('is_verified', 'equalto', 1)|list|length }} Verified
+                </span>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="text-[11px] uppercase tracking-wider text-slate-400 bg-slate-900/60 border-b border-slate-800">
+                    <tr>
+                        <th class="py-3 px-4">Student & PRN</th>
+                        <th class="py-3 px-4">Category & Proof Title</th>
+                        <th class="py-3 px-4">File Details</th>
+                        <th class="py-3 px-4">OCR Extraction Finding</th>
+                        <th class="py-3 px-4">Verification Status</th>
+                        <th class="py-3 px-4 text-right">TPO Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    {% for doc in student_documents %}
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-white text-sm">{{ doc.student_name }}</div>
+                            <div class="text-[11px] text-slate-400">Roll: {{ doc.roll_no }} | PRN: {{ doc.gr_no }}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono font-semibold mb-1
+                                {% if '10TH' in doc.doc_type or '12TH' in doc.doc_type %}bg-indigo-500/20 text-indigo-300 border border-indigo-500/30
+                                {% elif 'HACKATHON' in doc.doc_type %}bg-amber-500/20 text-amber-300 border border-amber-500/30
+                                {% else %}bg-purple-500/20 text-purple-300 border border-purple-500/30{% endif %}">
+                                {{ doc.doc_type }}
+                            </span>
+                            <div class="font-semibold text-slate-200">{{ doc.title }}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-mono text-[11px] text-slate-300">{{ doc.original_filename }}</div>
+                            <div class="text-[10px] text-slate-500">{{ doc.file_size_kb }} KB &bull; {{ doc.uploaded_at }}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            {% if doc.extracted %}
+                                {% if doc.extracted.get('percentage') %}
+                                <div class="font-bold text-emerald-400">
+                                    <i class="fa-solid fa-circle-check text-xs mr-1"></i> {{ doc.extracted.percentage }}% Extracted
+                                </div>
+                                <div class="text-[10px] text-slate-400">{{ doc.extracted.get('board', 'Board Marksheet') }}</div>
+                                {% elif doc.extracted.get('is_winner') %}
+                                <div class="font-bold text-amber-400">
+                                    <i class="fa-solid fa-trophy text-xs mr-1"></i> {{ doc.extracted.achievement_title }}
+                                </div>
+                                <div class="text-[10px] text-slate-400">{{ doc.extracted.get('event_name', 'Event') }}</div>
+                                {% else %}
+                                <div class="text-[11px] text-slate-400 font-mono">Parsed via {{ doc.extracted.get('parser_engine', 'OCR') }}</div>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-slate-500">No extraction metadata</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4">
+                            {% if doc.is_verified == 1 %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/25 text-emerald-300 border border-emerald-500/40">
+                                    <i class="fa-solid fa-shield-check text-[11px] mr-1"></i> Verified
+                                </span>
+                                <div class="text-[10px] text-slate-400 mt-0.5">By {{ doc.verified_by or 'TPO' }}</div>
+                            {% elif doc.is_verified == -1 %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/25 text-rose-300 border border-rose-500/40">
+                                    <i class="fa-solid fa-circle-xmark text-[11px] mr-1"></i> Rejected
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/25 text-amber-300 border border-amber-500/40">
+                                    <i class="fa-solid fa-clock text-[11px] mr-1"></i> Pending Verification
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <a href="{{ url_for('view_document', doc_id=doc.id) }}" target="_blank"
+                                   class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-600 text-white flex items-center gap-1 shadow-sm border border-slate-600">
+                                    <i class="fa-solid fa-eye text-[11px]"></i> View File
+                                </a>
+
+                                {% if doc.is_verified != 1 %}
+                                <form method="POST" action="{{ url_for('admin_verify_document', doc_id=doc.id) }}" class="inline">
+                                    <button type="submit" title="Verify Proof" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1 shadow-sm">
+                                        <i class="fa-solid fa-check"></i> Verify
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('admin_reject_document', doc_id=doc.id) }}" class="inline" onsubmit="return confirm('Flag document for student resubmission?');">
+                                    <button type="submit" title="Reject Proof" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-900/40 hover:bg-rose-900/70 text-rose-300 hover:text-white border border-rose-500/40 flex items-center gap-1">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-slate-400">
+                            <i class="fa-solid fa-folder-open text-2xl mb-2 block text-slate-600"></i>
+                            No student documents uploaded yet in the Document Vault.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Dynamic Placement Drives Criteria Manager (Feature 2 from Proposal) -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-700 gap-2">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-400"></i>
+                    Dynamic Recruiter Criteria Engine (Real-Time SQL Configuration)
+                </h2>
+                <p class="text-xs text-slate-300">Placement officers can adjust minimum CGPA, backlog limits, and DSA cutoffs in real time without restarting.</p>
+            </div>
+            <span class="text-xs bg-indigo-500/20 text-indigo-200 border border-indigo-400/30 px-3 py-1 rounded-full font-mono font-medium">
+                Live SQL Sync
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="text-[11px] uppercase tracking-wider text-slate-400 bg-slate-900/60 border-b border-slate-800">
+                    <tr>
+                        <th class="py-3 px-4">Company & Drive</th>
+                        <th class="py-3 px-4">Package</th>
+                        <th class="py-3 px-4">Min CGPA</th>
+                        <th class="py-3 px-4">Max Backlogs</th>
+                        <th class="py-3 px-4">Min DSA Score</th>
+                        <th class="py-3 px-4">Min Readiness</th>
+                        <th class="py-3 px-4 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    {% for d in drives %}
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="py-3 px-4 font-semibold text-white">
+                            <div class="text-sm font-bold">{{ d.company_name }}</div>
+                            <div class="text-[11px] text-slate-400">{{ d.job_title }}</div>
+                            <span class="text-[10px] text-indigo-400 font-mono">{{ d.company_tier }}</span>
+                        </td>
+                        <td class="py-3 px-4 text-emerald-400 font-bold font-mono">₹{{ d.package_lpa }} LPA</td>
+                        <td class="py-3 px-4 font-mono font-bold text-slate-200">≥ {{ d.min_cgpa }}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-slate-200">≤ {{ d.max_active_backlogs }}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-slate-200">≥ {{ d.min_dsa_score }}%</td>
+                        <td class="py-3 px-4 font-mono font-bold text-slate-200">≥ {{ d.min_readiness_index }}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="openEditModal('edit-modal-{{ d.id }}')" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-md transition-all">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Cutoffs
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Criteria Modal -->
+                    <div id="edit-modal-{{ d.id }}" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative text-left">
+                            <button onclick="closeEditModal('edit-modal-{{ d.id }}')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+
+                            <h3 class="text-base font-bold text-white mb-1">Edit Dynamic Criteria — {{ d.company_name }}</h3>
+                            <p class="text-xs text-slate-400 mb-5">Updates stored directly in <code>drive_criteria</code> SQL table, dynamically re-evaluating all student applicants.</p>
+
+                            <form method="POST" action="{{ url_for('admin_update_criteria') }}" class="space-y-4">
+                                <input type="hidden" name="drive_id" value="{{ d.id }}">
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Minimum CGPA</label>
+                                        <input type="number" step="0.05" min="4.0" max="10.0" name="min_cgpa" value="{{ d.min_cgpa }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Max Active Backlogs</label>
+                                        <input type="number" min="0" max="5" name="max_active_backlogs" value="{{ d.max_active_backlogs }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Min DSA Score (%)</label>
+                                        <input type="number" step="1.0" min="0" max="100" name="min_dsa_score" value="{{ d.min_dsa_score }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Min Readiness Index</label>
+                                        <input type="number" step="1.0" min="0" max="100" name="min_readiness_index" value="{{ d.min_readiness_index }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                </div>
+
+                                <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                                    <button type="button" onclick="closeEditModal('edit-modal-{{ d.id }}')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-emerald-600/30 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-floppy-disk"></i> Save & Apply Instantly
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Company Directory Management (Add Recruiters / Edit Tier & Cutoffs) -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-700 gap-2">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-building-user text-indigo-400"></i>
+                    Recruiter Company Directory
+                </h2>
+                <p class="text-xs text-slate-300">Add new recruiting companies and edit each company's tier and baseline eligibility cutoffs.</p>
+            </div>
+            <button onclick="openEditModal('add-company-modal')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-md transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-plus"></i> Add Company
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-200">
+                <thead class="text-[11px] uppercase tracking-wider text-slate-300 bg-slate-900/80 border-b border-slate-700">
+                    <tr>
+                        <th class="py-3 px-4">Company</th>
+                        <th class="py-3 px-4">Tier</th>
+                        <th class="py-3 px-4">Package Range (LPA)</th>
+                        <th class="py-3 px-4">Min CGPA</th>
+                        <th class="py-3 px-4">Min DSA</th>
+                        <th class="py-3 px-4">Min Readiness</th>
+                        <th class="py-3 px-4 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/60">
+                    {% for c in companies %}
+                    <tr class="hover:bg-slate-700/30 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="{{ c.logo_icon }} text-slate-300"></i> {{ c.name }}
+                            </div>
+                            <div class="text-[11px] text-slate-300">{{ c.domain }}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-2.5 py-1 rounded text-[11px] font-semibold
+                                {% if c.tier == 'Tier 1 Product' %}bg-purple-500/25 text-purple-200 border border-purple-400/40
+                                {% elif c.tier == 'Tier 2 Core' %}bg-blue-500/25 text-blue-200 border border-blue-400/40
+                                {% else %}bg-amber-500/25 text-amber-200 border border-amber-400/40{% endif %}">
+                                {{ c.tier }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-emerald-400 font-bold font-mono">₹{{ c.min_package_lpa }} - {{ c.max_package_lpa }}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-white">≥ {{ c.min_cgpa_cutoff }}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-white">≥ {{ c.min_dsa_cutoff }}%</td>
+                        <td class="py-3 px-4 font-mono font-bold text-white">≥ {{ c.min_readiness_cutoff }}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="openEditModal('edit-company-modal-{{ c.id }}')" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-md transition-all">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                            </button>
+                        </td>
+                    </tr>
+
+                    <!-- Edit Company Modal -->
+                    <div id="edit-company-modal-{{ c.id }}" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative text-left">
+                            <button onclick="closeEditModal('edit-company-modal-{{ c.id }}')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+
+                            <h3 class="text-base font-bold text-white mb-1">Edit Company — {{ c.name }}</h3>
+                            <p class="text-xs text-slate-400 mb-5">Update recruiter tier classification and baseline eligibility cutoffs stored in the <code>companies</code> SQL table.</p>
+
+                            <form method="POST" action="{{ url_for('admin_update_company', company_id=c.id) }}" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-1">Tier</label>
+                                    <select name="tier" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                        {% for t in ['Tier 1 Product', 'Tier 2 Core', 'Mass Recruiter'] %}
+                                        <option value="{{ t }}" {% if c.tier == t %}selected{% endif %}>{{ t }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Min Package (LPA)</label>
+                                        <input type="number" step="0.1" min="0" name="min_package_lpa" value="{{ c.min_package_lpa }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Max Package (LPA)</label>
+                                        <input type="number" step="0.1" min="0" name="max_package_lpa" value="{{ c.max_package_lpa }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Min CGPA Cutoff</label>
+                                        <input type="number" step="0.05" min="0" max="10" name="min_cgpa_cutoff" value="{{ c.min_cgpa_cutoff }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Min DSA Cutoff (%)</label>
+                                        <input type="number" step="1.0" min="0" max="100" name="min_dsa_cutoff" value="{{ c.min_dsa_cutoff }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-xs font-medium text-slate-300 mb-1">Min Readiness Index Cutoff</label>
+                                        <input type="number" step="1.0" min="0" max="100" name="min_readiness_cutoff" value="{{ c.min_readiness_cutoff }}" required
+                                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                    </div>
+                                </div>
+
+                                <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                                    <button type="button" onclick="closeEditModal('edit-company-modal-{{ c.id }}')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-emerald-600/30 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Company Modal -->
+    <div id="add-company-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative text-left">
+            <button onclick="closeEditModal('add-company-modal')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <h3 class="text-base font-bold text-white mb-1">Add New Recruiting Company</h3>
+            <p class="text-xs text-slate-400 mb-5">Inserts a new row into the <code>companies</code> SQL table, instantly available for creating placement drives.</p>
+
+            <form method="POST" action="{{ url_for('admin_add_company') }}" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Company Name</label>
+                        <input type="text" name="name" required placeholder="e.g. Amazon India"
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Domain / Sector</label>
+                        <input type="text" name="domain" required placeholder="e.g. E-commerce & Cloud Infrastructure"
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Tier</label>
+                        <select name="tier" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <option value="Tier 1 Product">Tier 1 Product</option>
+                            <option value="Tier 2 Core">Tier 2 Core</option>
+                            <option value="Mass Recruiter" selected>Mass Recruiter</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Headquarters</label>
+                        <input type="text" name="headquarters" placeholder="e.g. Bangalore"
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Careers Website</label>
+                        <input type="text" name="website" placeholder="https://..."
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Min Package (LPA)</label>
+                        <input type="number" step="0.1" min="0" name="min_package_lpa" value="4.0" required
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Max Package (LPA)</label>
+                        <input type="number" step="0.1" min="0" name="max_package_lpa" value="10.0" required
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Min CGPA Cutoff</label>
+                        <input type="number" step="0.05" min="0" max="10" name="min_cgpa_cutoff" value="6.0" required
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Min DSA Cutoff (%)</label>
+                        <input type="number" step="1.0" min="0" max="100" name="min_dsa_cutoff" value="50.0" required
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Min Readiness Index Cutoff</label>
+                        <input type="number" step="1.0" min="0" max="100" name="min_readiness_cutoff" value="55.0" required
+                               class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                    <button type="button" onclick="closeEditModal('add-company-modal')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs font-semibold">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30 flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add Company
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Student Cohort Roster & Performance Diagnostic Drill-Down -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-700 gap-2">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-users-viewfinder text-indigo-400"></i>
+                    Student Placement Readiness Roster
+                </h2>
+                <p class="text-xs text-slate-300">Full cohort overview with 1-click individual diagnostic inspection.</p>
+            </div>
+            <div class="text-xs text-slate-300">
+                Sorted by: <span class="text-indigo-400 font-semibold font-mono">Readiness Index (DESC)</span>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-200">
+                <thead class="text-[11px] uppercase tracking-wider text-slate-300 bg-slate-900/80 border-b border-slate-700">
+                    <tr>
+                        <th class="py-3 px-4">Student Name & Roll</th>
+                        <th class="py-3 px-4">CGPA</th>
+                        <th class="py-3 px-4">Backlogs</th>
+                        <th class="py-3 px-4">DSA Score</th>
+                        <th class="py-3 px-4">Speech Fluency</th>
+                        <th class="py-3 px-4">Readiness Index</th>
+                        <th class="py-3 px-4">Predicted Tier</th>
+                        <th class="py-3 px-4 text-right">Deep Dive</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/60">
+                    {% for s in students %}
+                    <tr class="hover:bg-slate-700/30 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-white text-sm">{{ s.full_name }}</div>
+                            <div class="text-[11px] text-slate-300 font-mono">Roll: {{ s.roll_no }} | GR: {{ s.gr_no }}</div>
+                        </td>
+                        <td class="py-3 px-4 font-mono font-bold text-amber-400">{{ s.cgpa }}</td>
+                        <td class="py-3 px-4 font-mono {% if s.active_backlogs == 0 %}text-emerald-400{% else %}text-rose-400 font-bold{% endif %}">
+                            {{ s.active_backlogs }}
+                        </td>
+                        <td class="py-3 px-4 font-mono font-bold text-indigo-400">{{ s.dsa_score }}%</td>
+                        <td class="py-3 px-4 font-mono text-purple-400">{{ s.soft_skills_score if s.soft_skills_score is not none else '0.0' }}/100</td>
+                        <td class="py-3 px-4">
+                            <span class="font-mono font-extrabold text-sm {% if s.placement_readiness_index >= 80 %}text-emerald-400{% elif s.placement_readiness_index >= 65 %}text-indigo-400{% else %}text-rose-400{% endif %}">
+                                {{ s.placement_readiness_index }}%
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            {% set current_tier = s.predicted_tier or s.target_tier %}
+                            <span class="px-2.5 py-1 rounded text-[11px] font-semibold
+                                {% if current_tier == 'Tier 1 Product' %}bg-purple-500/25 text-purple-200 border border-purple-400/40
+                                {% elif current_tier == 'Tier 2 Core' %}bg-blue-500/25 text-blue-200 border border-blue-400/40
+                                {% elif current_tier == 'Mass Recruiter' %}bg-amber-500/25 text-amber-200 border border-amber-400/40
+                                {% else %}bg-rose-500/25 text-rose-200 border border-rose-400/40{% endif %}">
+                                {{ current_tier }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <a href="{{ url_for('admin_student_detail', student_id=s.id) }}" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white rounded-lg text-xs font-semibold border border-slate-600 transition-all inline-flex items-center gap-1">
+                                <i class="fa-solid fa-chart-simple text-indigo-400"></i> Diagnostics
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Interactive Chart.js Scripts -->
+<script>
+function openEditModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeEditModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+document.addEventListener('DOMContentLoaded', function() {
+    function getAdminChartColors() {
+        const isDay = document.body.classList.contains('daylight-mode');
+        return {
+            legendColor: isDay ? '#0f172a' : '#cbd5e1',
+            xTicks: isDay ? '#475569' : '#94a3b8',
+            gridColor: isDay ? '#e2e8f0' : 'rgba(255, 255, 255, 0.05)'
+        };
+    }
+
+    const tc = getAdminChartColors();
+
+    // 1. Placement Trends Chart
+    const trendsCtx = document.getElementById('trendsChart').getContext('2d');
+    const trendsData = {{ yearly_trends | tojson }};
+
+    const trendsChart = new Chart(trendsCtx, {
+        type: 'line',
+        data: {
+            labels: trendsData.years,
+            datasets: [
+                {
+                    label: 'Placement Rate (%)',
+                    data: trendsData.placed_rate,
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    yAxisID: 'y',
+                    fill: true,
+                    tension: 0.3
+                },
+                {
+                    label: 'Avg Package (LPA)',
+                    data: trendsData.avg_package,
+                    borderColor: '#6366F1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                    yAxisID: 'y1',
+                    fill: false,
+                    tension: 0.3
+                },
+                {
+                    label: 'Highest Package (LPA)',
+                    data: trendsData.highest_package,
+                    borderColor: '#A855F7',
+                    borderDash: [5, 5],
+                    yAxisID: 'y1',
+                    fill: false,
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { color: tc.legendColor, font: { weight: '600' } } }
+            },
+            scales: {
+                x: { ticks: { color: tc.xTicks, font: { weight: '500' } }, grid: { color: tc.gridColor } },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    ticks: { color: '#10B981', font: { weight: 'bold' } },
+                    grid: { color: tc.gridColor },
+                    title: { display: true, text: 'Placement Rate (%)', color: '#10B981' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    ticks: { color: '#6366F1', font: { weight: 'bold' } },
+                    grid: { drawOnChartArea: false },
+                    title: { display: true, text: 'Package (LPA)', color: '#6366F1' }
+                }
+            }
+        }
+    });
+
+    // 2. Cohort Readiness Doughnut
+    const tierCtx = document.getElementById('tierDoughnut').getContext('2d');
+    const tierCounts = {{ tier_counts | tojson }};
+    const tierLabels = tierCounts.map(t => t.target_tier);
+    const tierValues = tierCounts.map(t => t.count);
+
+    const doughnutChart = new Chart(tierCtx, {
+        type: 'doughnut',
+        data: {
+            labels: tierLabels,
+            datasets: [{
+                data: tierValues,
+                backgroundColor: ['#A855F7', '#3B82F6', '#F59E0B', '#EF4444'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: tc.legendColor, boxWidth: 12, font: { weight: '600' } } }
+            }
+        }
+    });
+
+    window.addEventListener('themeChanged', function() {
+        const next = getAdminChartColors();
+        trendsChart.options.plugins.legend.labels.color = next.legendColor;
+        trendsChart.options.scales.x.ticks.color = next.xTicks;
+        trendsChart.options.scales.x.grid.color = next.gridColor;
+        trendsChart.options.scales.y.grid.color = next.gridColor;
+        trendsChart.update();
+
+        doughnutChart.options.plugins.legend.labels.color = next.legendColor;
+        doughnutChart.update();
+    });
+});
+</script>
+{% endblock %}

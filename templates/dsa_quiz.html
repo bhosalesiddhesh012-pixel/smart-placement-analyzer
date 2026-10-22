@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}DSA Technical Assessment | Smart Placement Analyser{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <div class="bg-gradient-to-r from-indigo-950/80 via-slate-800 to-purple-950/80 border border-indigo-400/40 rounded-3xl p-6 sm:p-8 shadow-2xl">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2.5">
+            <i class="fa-solid fa-code text-indigo-400"></i>
+            DSA & LeetCode Technical Assessment
+        </h1>
+        <p class="text-xs text-slate-300 mt-1.5 max-w-2xl">
+            Test your algorithmic problem-solving with balanced LeetCode questions (Easy, Medium, Hard).
+            Your performance automatically determines your official <strong class="text-white">DSA Score</strong>, which feeds
+            directly into your AI-predicted Placement Readiness Index.
+        </p>
+    </div>
+
+    {% if not in_progress %}
+    <!-- Start Screen: Choose Question Count -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-xl">
+        <h2 class="text-sm font-bold text-white uppercase tracking-wider mb-4 pb-2 border-b border-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-indigo-400"></i> Choose Assessment Length
+        </h2>
+
+        <form method="POST" action="{{ url_for('dsa_quiz_start') }}" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for count in valid_counts %}
+            <label class="cursor-pointer group">
+                <input type="radio" name="question_count" value="{{ count }}" class="peer hidden" {% if loop.first %}checked{% endif %}>
+                <div class="bg-slate-900 border-2 border-slate-700 peer-checked:border-indigo-400 peer-checked:bg-indigo-950/40 rounded-2xl p-5 transition-all hover:border-slate-500 shadow-md">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-2xl font-extrabold text-white">{{ count }} Questions</span>
+                        <i class="fa-solid fa-circle-check text-indigo-400 opacity-0 peer-checked:opacity-100 text-xl"></i>
+                    </div>
+                    <div class="text-xs font-semibold text-indigo-300 mb-1">
+                        {% if count == 15 %}
+                        <span class="inline-flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">5 Easy</span>
+                            <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px]">5 Medium</span>
+                            <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px]">5 Hard</span>
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center gap-1.5">
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">7 Easy</span>
+                            <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px]">8 Medium</span>
+                            <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px]">5 Hard</span>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-slate-300">
+                        {% if count == 15 %}
+                        Curated LeetCode assessment with an even balance across Easy, Medium, and Hard coding patterns.
+                        {% else %}
+                        Extended assessment covering Big-O, Data Structures, Trees, Graphs, and Dynamic Programming.
+                        {% endif %}
+                    </p>
+                </div>
+            </label>
+            {% endfor %}
+
+            <div class="sm:col-span-2 pt-2 flex justify-end">
+                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> Start DSA Assessment
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 text-xs text-slate-300 flex items-center gap-2.5 shadow-md">
+        <i class="fa-solid fa-circle-info text-indigo-400 text-base"></i>
+        <span>Your current DSA Score is <strong class="text-white">{{ student.dsa_score }}%</strong>. Completing this
+        assessment will replace it with your quiz-graded score.</span>
+    </div>
+
+    {% else %}
+    <!-- Quiz In Progress -->
+    <form method="POST" action="{{ url_for('dsa_quiz_submit') }}" class="space-y-4">
+        <div class="bg-slate-800/95 border border-slate-700 rounded-2xl p-4 flex items-center justify-between shadow-xl sticky top-20 z-10 backdrop-blur-md">
+            <span class="text-xs text-slate-200 font-semibold flex items-center">
+                <i class="fa-solid fa-clipboard-question text-indigo-400 mr-2 text-base"></i>
+                {{ quiz.count }} Question LeetCode Assessment (Easy · Medium · Hard)
+            </span>
+            <button type="button" onclick="document.getElementById('cancel-quiz-form').submit()" class="text-xs text-rose-300 hover:text-rose-200 font-medium flex items-center gap-1 bg-rose-500/20 px-2.5 py-1 rounded-lg border border-rose-500/30">
+                <i class="fa-solid fa-xmark"></i> Discard & Restart
+            </button>
+        </div>
+
+        {% for q in quiz.questions %}
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 shadow-lg">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-3">
+                <p class="text-sm font-semibold text-white">
+                    <span class="text-indigo-400 font-mono mr-1.5 font-bold">Q{{ loop.index }}.</span> {{ q.question }}
+                </p>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <span class="text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold
+                        {% if q.difficulty == 'Easy' %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40
+                        {% elif q.difficulty == 'Medium' %}bg-amber-500/20 text-amber-300 border border-amber-500/40
+                        {% else %}bg-rose-500/20 text-rose-300 border border-rose-500/40{% endif %}">
+                        {{ q.difficulty }}
+                    </span>
+                    <span class="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-300 border border-slate-600 font-mono">
+                        {{ q.topic }}
+                    </span>
+                </div>
+            </div>
+            <div class="space-y-2">
+                {% for opt in q.options %}
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-700 bg-slate-900/70 hover:border-indigo-400/60 cursor-pointer transition-all has-[:checked]:border-indigo-400 has-[:checked]:bg-indigo-950/40">
+                    <input type="radio" name="q_{{ q.id }}" value="{{ loop.index0 }}" required class="accent-indigo-500 w-4 h-4">
+                    <span class="text-xs text-slate-200 font-medium">{{ opt }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="pt-3 flex justify-end">
+            <button type="submit" class="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/40 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> Submit Assessment
+            </button>
+        </div>
+    </form>
+
+    <form id="cancel-quiz-form" method="POST" action="{{ url_for('dsa_quiz_cancel') }}" class="hidden"></form>
+    {% endif %}
+
+</div>
+{% endblock %}

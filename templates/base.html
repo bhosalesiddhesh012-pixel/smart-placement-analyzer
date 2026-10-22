@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Placement Analyser{% endblock %} | VIT Pune</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=2.3">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white relative">
+
+    <!-- Top Radiant Ambient Glow -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-3/4 h-56 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900/90 backdrop-blur-md border-b border-indigo-500/20 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between min-h-[4rem] h-16 gap-2 sm:gap-4">
+                <!-- Brand Title -->
+                <div class="flex items-center space-x-2.5 sm:space-x-3 shrink-0">
+                    <a href="{{ url_for('index') }}" class="flex items-center space-x-2.5 sm:space-x-3 group shrink-0">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform shrink-0">
+                            <i class="fa-solid fa-graduation-cap text-white text-base sm:text-lg"></i>
+                        </div>
+                        <div class="shrink-0">
+                            <span class="text-base sm:text-lg font-bold text-white tracking-tight flex items-center gap-1.5 whitespace-nowrap">
+                                Smart Placement Analyser
+                            </span>
+                            <span class="text-[11px] text-indigo-300 font-medium hidden 2xl:block -mt-0.5 whitespace-nowrap">Campus Placement Intelligence Portal</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Nav Links -->
+                {% if session.get('user_id') and session.get('role') == 'STUDENT' %}
+                <nav class="flex items-center space-x-1 sm:space-x-1.5 xl:space-x-2 overflow-x-auto no-scrollbar py-1">
+                    <a href="{{ url_for('student_dashboard') }}" class="px-2 sm:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all whitespace-nowrap shrink-0 {% if request.endpoint == 'student_dashboard' %}text-white bg-indigo-600 shadow-md shadow-indigo-600/30 border border-indigo-400/50{% else %}text-slate-200 hover:text-white hover:bg-slate-800/80{% endif %}">
+                        <i class="fa-solid fa-chart-pie mr-1 sm:mr-1.5"></i> Readiness
+                    </a>
+                    <a href="{{ url_for('student_drives') }}" class="px-2 sm:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all whitespace-nowrap shrink-0 {% if request.endpoint == 'student_drives' %}text-white bg-indigo-600 shadow-md shadow-indigo-600/30 border border-indigo-400/50{% else %}text-slate-200 hover:text-white hover:bg-slate-800/80{% endif %}">
+                        <i class="fa-solid fa-briefcase mr-1 sm:mr-1.5"></i> Drives
+                    </a>
+                    <a href="{{ url_for('interview_lab') }}" class="px-2 sm:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all whitespace-nowrap shrink-0 {% if request.endpoint == 'interview_lab' %}text-white bg-indigo-600 shadow-md shadow-indigo-600/30 border border-indigo-400/50{% else %}text-slate-200 hover:text-white hover:bg-slate-800/80{% endif %}">
+                        <i class="fa-solid fa-microphone-lines mr-1 sm:mr-1.5"></i> Speech
+                    </a>
+                    <a href="{{ url_for('dsa_quiz') }}" class="px-2 sm:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all whitespace-nowrap shrink-0 {% if request.endpoint and request.endpoint.startswith('dsa_quiz') %}text-white bg-indigo-600 shadow-md shadow-indigo-600/30 border border-indigo-400/50{% else %}text-slate-200 hover:text-white hover:bg-slate-800/80{% endif %}">
+                        <i class="fa-solid fa-code mr-1 sm:mr-1.5"></i> DSA Quiz
+                    </a>
+                    <a href="{{ url_for('explainability_view') }}" class="px-2 sm:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all whitespace-nowrap shrink-0 {% if request.endpoint == 'explainability_view' %}text-white bg-indigo-600 shadow-md shadow-indigo-600/30 border border-indigo-400/50{% else %}text-slate-200 hover:text-white hover:bg-slate-800/80{% endif %}">
+                        <i class="fa-solid fa-brain mr-1 sm:mr-1.5"></i> SHAP
+                    </a>
+                    <a href="{{ url_for('student_documents') }}" class="px-2 sm:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all whitespace-nowrap shrink-0 {% if request.endpoint == 'student_documents' %}text-white bg-indigo-600 shadow-md shadow-indigo-600/30 border border-indigo-400/50{% else %}text-slate-200 hover:text-white hover:bg-slate-800/80{% endif %}">
+                        <i class="fa-solid fa-file-shield mr-1 sm:mr-1.5"></i> Vault
+                    </a>
+                    <a href="{{ url_for('student_profile') }}" class="px-2 sm:px-2.5 xl:px-3 py-1 sm:py-1.5 rounded-lg text-xs xl:text-sm font-semibold transition-all whitespace-nowrap shrink-0 {% if request.endpoint == 'student_profile' %}text-white bg-indigo-600 shadow-md shadow-indigo-600/30 border border-indigo-400/50{% else %}text-slate-200 hover:text-white hover:bg-slate-800/80{% endif %}">
+                        <i class="fa-solid fa-user-pen mr-1 sm:mr-1.5"></i> Profile
+                    </a>
+                </nav>
+                {% endif %}
+
+                <!-- Profile Pill, Brightness Toggle & Logout (Always Fixed Right & Visible) -->
+                <div class="flex items-center pl-2 sm:pl-3 border-l border-slate-700/80 space-x-1.5 sm:space-x-2 shrink-0">
+                    {% if session.get('user_id') %}
+                        <div class="text-right hidden xl:block">
+                            <div class="text-xs sm:text-sm font-bold text-white whitespace-nowrap">{{ session.get('full_name') }}</div>
+                            <div class="text-[11px] text-indigo-300 font-mono font-semibold">{{ session.get('role') }}</div>
+                        </div>
+
+                        <!-- Bright Daylight Mode Toggle Button -->
+                        <button onclick="toggleDaylightMode()" id="daylight-toggle-btn" title="Toggle Bright/Daylight Theme"
+                                class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-800/90 hover:bg-indigo-600 text-amber-300 hover:text-white border border-slate-700 hover:border-indigo-400 flex items-center justify-center transition-all shadow-sm shrink-0">
+                            <i class="fa-solid fa-sun text-xs sm:text-sm" id="daylight-icon"></i>
+                        </button>
+
+                        <!-- Prominent Logout Button -->
+                        <a href="{{ url_for('logout') }}" title="Logout"
+                           class="px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg bg-rose-600/25 hover:bg-rose-600 text-rose-200 hover:text-white border border-rose-500/50 flex items-center gap-1.5 text-xs font-bold transition-all shadow-md shrink-0">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                            <span class="inline">Logout</span>
+                        </a>
+                    {% else %}
+                        <!-- Bright Daylight Mode Toggle for guests/login -->
+                        <button onclick="toggleDaylightMode()" id="daylight-toggle-btn" title="Toggle Bright/Daylight Theme"
+                                class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-slate-800/90 hover:bg-indigo-600 text-amber-300 hover:text-white border border-slate-700 hover:border-indigo-400 flex items-center justify-center transition-all shadow-sm shrink-0">
+                            <i class="fa-solid fa-sun text-xs sm:text-sm" id="daylight-icon"></i>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full relative z-10">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="p-3.5 mb-3 rounded-2xl border flex items-center justify-between text-sm shadow-xl font-medium animate-fade-in
+                        {% if category == 'success' %}bg-emerald-900/60 border-emerald-400/50 text-emerald-200
+                        {% elif category == 'danger' %}bg-rose-900/60 border-rose-400/50 text-rose-200
+                        {% elif category == 'warning' %}bg-amber-900/60 border-amber-400/50 text-amber-200
+                        {% else %}bg-indigo-900/60 border-indigo-400/50 text-indigo-200{% endif %}">
+                        <div class="flex items-center space-x-2.5">
+                            <i class="fa-solid {% if category == 'success' %}fa-circle-check text-emerald-300 text-base{% elif category == 'danger' %}fa-triangle-exclamation text-rose-300 text-base{% elif category == 'warning' %}fa-circle-exclamation text-amber-300 text-base{% else %}fa-circle-info text-indigo-300 text-base{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                        <button onclick="this.parentElement.remove()" class="text-slate-300 hover:text-white transition-colors">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full relative z-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Institutional Footer -->
+    <footer class="bg-slate-900/90 border-t border-slate-800/80 py-6 text-xs text-slate-400 mt-12 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+                <p class="font-bold text-slate-200">Vishwakarma Institute of Technology, Pune (VIT)</p>
+                <p class="text-slate-400">Department of Computer Engineering | Academic Year 2026-27</p>
+                <p class="text-slate-400 mt-0.5">Project Guide: <span class="text-indigo-300 font-semibold">Prof. Sachin Jadhav</span></p>
+            </div>
+            <div class="text-center md:text-right">
+                <p class="text-slate-300">Team: <span class="text-white font-medium">Siddhesh Bhosale, Meghraj Sirsat, Soham Ombale, Arpit Tale</span></p>
+                <div class="flex items-center justify-center md:justify-end gap-2 mt-1.5">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-slate-800 border border-slate-700 text-slate-200 font-medium">
+                        <i class="fa-solid fa-database text-emerald-400 text-[10px]"></i> Relational Architecture
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-slate-800 border border-slate-700 text-slate-200 font-medium">
+                        <i class="fa-solid fa-microchip text-indigo-400 text-[10px]"></i> ML + Explainable AI
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Theme persistence script -->
+    <script>
+        function applyDaylightState(isDaylight) {
+            const body = document.body;
+            const icon = document.getElementById('daylight-icon');
+            if (isDaylight) {
+                body.classList.add('daylight-mode');
+                if (icon) {
+                    icon.className = 'fa-solid fa-moon text-sm';
+                }
+            } else {
+                body.classList.remove('daylight-mode');
+                if (icon) {
+                    icon.className = 'fa-solid fa-sun text-sm';
+                }
+            }
+            window.dispatchEvent(new CustomEvent('themeChanged', { detail: { isDaylight } }));
+        }
+
+        function toggleDaylightMode() {
+            const isCurrentlyDay = document.body.classList.contains('daylight-mode');
+            const newState = !isCurrentlyDay;
+            localStorage.setItem('smart_placement_daylight', newState ? '1' : '0');
+            applyDaylightState(newState);
+        }
+
+        // Initialize from saved preference
+        (function() {
+            const saved = localStorage.getItem('smart_placement_daylight');
+            if (saved === '1') {
+                applyDaylightState(true);
+            }
+        })();
+    </script>
+
+    <!-- Client-side Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,361 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard | Smart Placement Analyser{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Student Header & Academic Identity Card -->
+    <div class="bg-gradient-to-r from-indigo-950/80 via-slate-800 to-purple-950/70 border border-indigo-400/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+            <div class="flex items-start space-x-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-xl shadow-indigo-600/40">
+                    {{ student.full_name[:2] }}
+                </div>
+                <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{{ student.full_name }}</h1>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                            {% if prediction.predicted_tier == 'Tier 1 Product' %}bg-purple-500/25 text-purple-200 border border-purple-400/50
+                            {% elif prediction.predicted_tier == 'Tier 2 Core' %}bg-blue-500/25 text-blue-200 border border-blue-400/50
+                            {% elif prediction.predicted_tier == 'Mass Recruiter' %}bg-amber-500/25 text-amber-200 border border-amber-400/50
+                            {% elif prediction.predicted_tier == 'Uninitialized' %}bg-slate-700/60 text-slate-300 border border-slate-600
+                            {% else %}bg-rose-500/25 text-rose-200 border border-rose-400/50{% endif %}">
+                            <i class="fa-solid {% if prediction.predicted_tier == 'Uninitialized' %}fa-clock{% else %}fa-crown{% endif %} text-[10px] mr-1"></i> {{ prediction.predicted_tier }}
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-slate-300">
+                        <span><i class="fa-solid fa-id-card text-indigo-400 mr-1"></i> Roll: <strong class="text-white">{{ student.roll_no }}</strong></span>
+                        <span><i class="fa-solid fa-hashtag text-indigo-400 mr-1"></i> GR No: <strong class="text-white">{{ student.gr_no }}</strong></span>
+                        <span><i class="fa-solid fa-building-columns text-indigo-400 mr-1"></i> {{ student.department }} (Sem {{ student.semester }})</span>
+                        <span><i class="fa-solid fa-envelope text-indigo-400 mr-1"></i> {{ student.email }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Placement Readiness Hero Gauge & Core Metrics -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Readiness Index Gauge Card -->
+        <div class="lg:col-span-4 bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl flex flex-col items-center justify-between text-center relative overflow-hidden">
+            <div class="w-full flex items-center justify-between text-xs text-slate-300 pb-3 border-b border-slate-700/80">
+                <span class="font-semibold uppercase tracking-wider text-white">AI Placement Readiness</span>
+                <span class="text-indigo-300 font-mono">Random Forest Regressor</span>
+            </div>
+
+            <!-- Big Circular Visual Meter -->
+            <div class="relative my-6 flex items-center justify-center">
+                <svg class="w-44 h-44 transform -rotate-90">
+                    <circle cx="88" cy="88" r="74" stroke="currentColor" stroke-width="12" class="text-slate-700" fill="transparent" />
+                    <circle cx="88" cy="88" r="74" stroke="currentColor" stroke-width="12"
+                            stroke-dasharray="465"
+                            stroke-dashoffset="{{ 465 - (465 * (prediction.readiness_index / 100)) }}"
+                            stroke-linecap="round"
+                            class="{% if prediction.readiness_index >= 80 %}text-emerald-400{% elif prediction.readiness_index >= 65 %}text-indigo-400{% else %}text-amber-400{% endif %} transition-all duration-1000"
+                            fill="transparent" />
+                </svg>
+                <div class="absolute flex flex-col items-center justify-center">
+                    <span class="text-4xl font-extrabold text-white tracking-tight">{{ prediction.readiness_index }}</span>
+                    <span class="text-xs text-indigo-200 uppercase tracking-widest font-semibold mt-0.5">Index / 100</span>
+                </div>
+            </div>
+
+            <div class="w-full space-y-2">
+                <div class="flex items-center justify-between text-xs text-slate-200">
+                    <span>Outcome Probability</span>
+                    <span class="font-bold text-white">{{ prediction.tier_probabilities.get(prediction.predicted_tier, 0) }}% Confidence</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2.5 overflow-hidden flex">
+                    <div class="bg-purple-500" style="width: {{ prediction.tier_probabilities.get('Tier 1 Product', 0) }}%" title="Tier 1 Product: {{ prediction.tier_probabilities.get('Tier 1 Product', 0) }}%"></div>
+                    <div class="bg-blue-500" style="width: {{ prediction.tier_probabilities.get('Tier 2 Core', 0) }}%" title="Tier 2 Core: {{ prediction.tier_probabilities.get('Tier 2 Core', 0) }}%"></div>
+                    <div class="bg-amber-500" style="width: {{ prediction.tier_probabilities.get('Mass Recruiter', 0) }}%" title="Mass Recruiter: {{ prediction.tier_probabilities.get('Mass Recruiter', 0) }}%"></div>
+                    <div class="bg-rose-500" style="width: {{ prediction.tier_probabilities.get('Needs Remediation', 0) }}%" title="Needs Remediation: {{ prediction.tier_probabilities.get('Needs Remediation', 0) }}%"></div>
+                </div>
+                <div class="flex justify-between text-[10px] text-slate-300 pt-1">
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-500"></span> Tier 1</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Tier 2</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Mass</span>
+                    <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Remediation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6 Core Attribute Cards -->
+        <div class="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+            <!-- Card 1: CGPA -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg hover:border-indigo-400/50 transition-all">
+                <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+                    <span class="font-medium">Engineering CGPA</span>
+                    <i class="fa-solid fa-graduation-cap text-indigo-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-white">{{ student.cgpa }}</div>
+                <div class="text-[11px] text-slate-300 mt-1">10th: {{ student.ssc_percentage }}% | 12th: {{ student.hsc_percentage }}%</div>
+            </div>
+
+            <!-- Card 2: DSA Score -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg hover:border-indigo-400/50 transition-all">
+                <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+                    <span class="font-medium">DSA Score</span>
+                    <i class="fa-solid fa-code text-indigo-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-white">{{ student.dsa_score }}<span class="text-sm font-normal text-slate-300">/100</span></div>
+                <div class="text-[11px] text-slate-300 mt-1 flex items-center justify-between">
+                    <span>Algorithmic Competency</span>
+                    <a href="{{ url_for('dsa_quiz') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold whitespace-nowrap">
+                        Take Quiz <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 3: LeetCode Solved -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg hover:border-indigo-400/50 transition-all">
+                <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+                    <span class="font-medium">LeetCode Solved</span>
+                    <i class="fa-solid fa-terminal text-amber-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-white">{{ student.leetcode_solved }}</div>
+                <div class="text-[11px] text-slate-300 mt-1">Competitive coding practice</div>
+            </div>
+
+            <!-- Card 4: Backlogs -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg hover:border-indigo-400/50 transition-all">
+                <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+                    <span class="font-medium">Active Backlogs</span>
+                    <i class="fa-solid fa-triangle-exclamation {% if student.active_backlogs == 0 %}text-emerald-400{% else %}text-rose-400{% endif %}"></i>
+                </div>
+                <div class="text-2xl font-bold {% if student.active_backlogs == 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
+                    {{ student.active_backlogs }}
+                </div>
+                <div class="text-[11px] text-slate-300 mt-1">History of backlogs: {{ student.history_backlogs }}</div>
+            </div>
+
+            <!-- Card 5: Projects & Hackathons -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg hover:border-indigo-400/50 transition-all">
+                <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+                    <span class="font-medium">Projects & Wins</span>
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-white">{{ student.projects_count }} <span class="text-xs text-slate-300 font-normal">Projects</span></div>
+                <div class="text-[11px] text-slate-300 mt-1">{{ student.hackathons_won }} Hackathons | {{ student.certifications_count }} Certs</div>
+            </div>
+
+            <!-- Card 6: Speech & Soft Skills -->
+            <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg hover:border-indigo-400/50 transition-all">
+                <div class="flex items-center justify-between text-slate-300 text-xs mb-2">
+                    <span class="font-medium">Interview Fluency</span>
+                    <i class="fa-solid fa-microphone-lines text-purple-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-white">{{ student.soft_skills_score if student.soft_skills_score is not none else 0.0 }}<span class="text-sm font-normal text-slate-300">/100</span></div>
+                <div class="text-[11px] text-slate-300 mt-1">Acoustic Score</div>
+            </div>
+
+            <!-- Quick Explainability & Remediation Callouts -->
+            <div class="col-span-2 sm:col-span-3 bg-gradient-to-r from-indigo-900/40 via-slate-800 to-purple-900/40 border border-indigo-400/30 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300 text-lg">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm font-bold text-white">Skill-Gap Diagnostics & Explainable AI</div>
+                        <div class="text-xs text-slate-300">Discover exactly why this prediction was made and follow your tailored preparation plan.</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <a href="{{ url_for('explainability_view') }}" class="flex-1 sm:flex-initial px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-md transition-all text-center">
+                        View SHAP Impact
+                    </a>
+                    <a href="{{ url_for('student_drives') }}" class="flex-1 sm:flex-initial px-3.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-100 text-xs font-semibold rounded-lg border border-slate-600 transition-all text-center">
+                        View Drives
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Active Placement Drives & Real-Time Dynamic Eligibility Screening -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-700/80">
+            <div>
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-briefcase text-indigo-400"></i>
+                    Active Campus Recruitment Drives
+                    <span class="text-xs bg-slate-700 text-slate-200 px-2.5 py-0.5 rounded-full border border-slate-600 font-semibold">{{ drives|length }} Active</span>
+                </h2>
+                <p class="text-xs text-slate-300">Dynamic criteria evaluated against your profile in real-time from the database.</p>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-semibold">
+                    <i class="fa-solid fa-circle-check mr-1"></i> {{ eligible_count }} Eligible
+                </span>
+                <span class="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 font-semibold">
+                    <i class="fa-solid fa-circle-xmark mr-1"></i> {{ total_drives - eligible_count }} Ineligible
+                </span>
+            </div>
+        </div>
+
+        <!-- Drives Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-200">
+                <thead class="text-[11px] uppercase tracking-wider text-slate-300 bg-slate-900/80 border-b border-slate-700">
+                    <tr>
+                        <th class="py-3 px-4">Company & Role</th>
+                        <th class="py-3 px-4">Package (CTC)</th>
+                        <th class="py-3 px-4">Recruiter Cutoffs</th>
+                        <th class="py-3 px-4">Dynamic Eligibility</th>
+                        <th class="py-3 px-4 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-700/60">
+                    {% for d in drives %}
+                    <tr class="hover:bg-slate-700/30 transition-colors">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-9 h-9 rounded-xl bg-slate-700/80 border border-slate-600 flex items-center justify-center text-slate-200 text-sm">
+                                    <i class="{{ d.logo_icon }}"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-white text-sm">{{ d.company_name }}</div>
+                                    <div class="text-[11px] text-slate-300">{{ d.job_role }}</div>
+                                    <span class="inline-block mt-0.5 px-2 py-0.2 rounded text-[10px] bg-slate-700 text-indigo-300 border border-slate-600 font-mono">{{ d.company_tier }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="text-sm font-bold text-emerald-400">₹{{ d.package_lpa }} LPA</div>
+                            <div class="text-[10px] text-slate-300">{{ d.drive_type }}</div>
+                        </td>
+                        <td class="py-3 px-4 space-y-0.5">
+                            <div>CGPA: <strong class="text-white">≥ {{ d.min_cgpa }}</strong></div>
+                            <div>Backlogs: <strong class="text-white">≤ {{ d.max_active_backlogs }}</strong></div>
+                            <div>DSA Score: <strong class="text-white">≥ {{ d.min_dsa_score }}%</strong></div>
+                        </td>
+                        <td class="py-3 px-4">
+                            {% if d.eligibility.status == 'ELIGIBLE' %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50">
+                                    <i class="fa-solid fa-circle-check text-[10px] mr-1.5"></i> Eligible
+                                </span>
+                            {% elif d.eligibility.status == 'BORDERLINE' %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/25 text-amber-200 border border-amber-400/50">
+                                    <i class="fa-solid fa-triangle-exclamation text-[10px] mr-1.5"></i> Borderline
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/25 text-rose-200 border border-rose-400/50">
+                                    <i class="fa-solid fa-circle-xmark text-[10px] mr-1.5"></i> Ineligible
+                                </span>
+                            {% endif %}
+                            <div class="text-[11px] text-slate-300 mt-1">
+                                Criteria met: {{ d.eligibility.passed_count }}/{{ d.eligibility.total_checks }}
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="openDeficitModal('modal-{{ d.id }}')" class="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white border border-slate-600 text-xs font-medium transition-all">
+                                    <i class="fa-solid fa-magnifying-glass-chart mr-1"></i> Inspect
+                                </button>
+                                {% if d.application %}
+                                    <span class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                        <i class="fa-solid fa-check"></i> Applied
+                                    </span>
+                                {% elif d.eligibility.status == 'ELIGIBLE' %}
+                                    <form method="POST" action="{{ url_for('apply_to_drive', drive_id=d.id) }}" class="inline">
+                                        <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/30 transition-all flex items-center gap-1">
+                                            <i class="fa-solid fa-paper-plane"></i> Apply
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Eligibility Diagnostic Modal -->
+                    <div id="modal-{{ d.id }}" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div class="bg-slate-800 border border-slate-700 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative">
+                            <button onclick="closeDeficitModal('modal-{{ d.id }}')" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+                                <i class="fa-solid fa-xmark text-lg"></i>
+                            </button>
+
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-200 text-lg">
+                                    <i class="{{ d.logo_icon }}"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-base font-bold text-white">{{ d.company_name }} — Dynamic Eligibility Breakdown</h3>
+                                    <p class="text-xs text-slate-400">{{ d.job_role }} (₹{{ d.package_lpa }} LPA)</p>
+                                </div>
+                            </div>
+
+                            <!-- Checks Matrix -->
+                            <div class="space-y-2 mb-4">
+                                {% for check in d.eligibility.checks %}
+                                <div class="p-2.5 rounded-xl border flex items-center justify-between text-xs
+                                    {% if check.passed %}bg-emerald-950/30 border-emerald-500/20 text-emerald-200{% else %}bg-rose-950/30 border-rose-500/20 text-rose-200{% endif %}">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fa-solid {% if check.passed %}fa-check text-emerald-400{% else %}fa-xmark text-rose-400{% endif %}"></i>
+                                        <span class="font-medium">{{ check.parameter }}</span>
+                                    </div>
+                                    <div class="font-mono text-[11px]">
+                                        Your Metric: <strong>{{ check.student_val }}</strong> | Cutoff: <strong>{{ check.required_val }}</strong>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Actionable Deficit Breakdown -->
+                            {% if d.eligibility.deficits %}
+                            <div class="bg-slate-950 border border-rose-500/30 rounded-2xl p-4 mb-4">
+                                <div class="text-xs font-bold text-rose-400 mb-2 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    Identified Numerical Deficits (Action Required)
+                                </div>
+                                <ul class="space-y-1.5 text-xs text-slate-300 list-disc list-inside">
+                                    {% for def in d.eligibility.deficits %}
+                                        <li>{{ def }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% else %}
+                            <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-2xl p-4 mb-4 text-xs text-emerald-300 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check text-base"></i>
+                                <span>Congratulations! Your profile satisfies all academic, coding, and readiness requirements for this placement drive.</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-800">
+                                <button onclick="closeDeficitModal('modal-{{ d.id }}')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">
+                                    Close
+                                </button>
+                                {% if d.eligibility.is_eligible %}
+                                <button onclick="alert('Application submitted successfully! Your credentials have been routed to the placement coordinator.')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-600/30">
+                                    <i class="fa-solid fa-paper-plane mr-1"></i> Apply Now
+                                </button>
+                                {% else %}
+                                <a href="{{ url_for('explainability_view') }}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-indigo-600/30">
+                                    <i class="fa-solid fa-brain mr-1"></i> View SHAP Analysis
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function openDeficitModal(id) {
+    document.getElementById(id).classList.remove('hidden');
+}
+function closeDeficitModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+</script>
+{% endblock %}

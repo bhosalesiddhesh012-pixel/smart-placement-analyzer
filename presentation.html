@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Placement Analyser - 50% Project Presentation</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow: hidden;
+        }
+        .slide {
+            display: none;
+            height: 100vh;
+            width: 100vw;
+            padding: 2.5rem 4rem;
+            box-sizing: border-box;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.99); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        @media print {
+            body { overflow: visible; background: white; color: black; }
+            .slide { display: block !important; height: 100vh; page-break-after: always; padding: 2rem; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col justify-between">
+
+    <!-- Presentation Control Bar (Floating) -->
+    <div class="no-print fixed top-4 right-6 z-50 flex items-center gap-3 bg-slate-900/90 border border-slate-800 rounded-full px-4 py-2 shadow-2xl backdrop-blur-md">
+        <span class="text-xs font-mono text-slate-400">Slide <span id="currentSlideNum" class="text-indigo-400 font-bold">1</span> / 11</span>
+        <button onclick="prevSlide()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white flex items-center justify-center transition-all">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <button onclick="nextSlide()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white flex items-center justify-center transition-all">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+        <button onclick="toggleFullScreen()" title="Fullscreen (F)" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white flex items-center justify-center transition-all">
+            <i class="fa-solid fa-expand text-xs"></i>
+        </button>
+        <button onclick="window.print()" title="Print / Export to PDF" class="px-3 py-1 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+            <i class="fa-solid fa-file-pdf"></i> PDF
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 1: TITLE SLIDE                       -->
+    <!-- ========================================== -->
+    <section class="slide active" id="slide-1">
+        <!-- Top Institutional Header -->
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg">
+                    VIT
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold tracking-widest text-indigo-400 uppercase">Applied Science and Engineering Project (ASEP-I)</h3>
+                    <p class="text-[11px] text-slate-400">Mid-Semester Assessment / 50% Project Progress Review</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    50% Completed Milestone
+                </span>
+            </div>
+        </div>
+
+        <!-- Project Title Hero -->
+        <div class="my-auto py-4 text-center">
+            <div class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-mono font-medium mb-3">
+                Div: K | Group No: 17
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight max-w-4xl mx-auto">
+                Smart Campus Placement Analyser and Predictor
+            </h1>
+            <p class="mt-3 text-slate-400 text-sm max-w-2xl mx-auto">
+                An Intelligent Multi-Tier Framework integrating a 3NF Relational Database, Dynamic Recruiter Criteria Engine, and Machine Learning Readiness Prediction.
+            </p>
+
+            <!-- Members & Guide Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 max-w-4xl mx-auto mt-8 items-stretch">
+                <!-- Group Members Table -->
+                <div class="md:col-span-8 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl text-left">
+                    <div class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-users"></i> Project Team Members
+                    </div>
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-slate-400 text-left">
+                                <th class="py-1.5">Roll No.</th>
+                                <th class="py-1.5">Name</th>
+                                <th class="py-1.5">PRN No.</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-medium">
+                            <tr><td class="py-1.5 font-mono text-indigo-300">26</td><td class="text-slate-200">Siddhesh Bhosale</td><td class="font-mono text-slate-400">1251070128</td></tr>
+                            <tr><td class="py-1.5 font-mono text-indigo-300">29</td><td class="text-slate-200">Meghraj Sirsat</td><td class="font-mono text-slate-400">1251070283</td></tr>
+                            <tr><td class="py-1.5 font-mono text-indigo-300">34</td><td class="text-slate-200">Soham Ombale</td><td class="font-mono text-slate-400">1251070915</td></tr>
+                            <tr><td class="py-1.5 font-mono text-indigo-300">61</td><td class="text-slate-200">Arpit Tale</td><td class="font-mono text-slate-400">1251070081</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Guide Card -->
+                <div class="md:col-span-4 bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-900 border border-purple-500/30 rounded-2xl p-5 shadow-xl flex flex-col justify-center text-left">
+                    <span class="text-xs font-semibold text-purple-300 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                        <i class="fa-solid fa-chalkboard-user"></i> Project Guide
+                    </span>
+                    <h3 class="text-lg font-bold text-white">Prof. Sachin Jadhav</h3>
+                    <p class="text-xs text-slate-400 mt-1">Department of Computer Engineering</p>
+                    <p class="text-[11px] font-mono text-indigo-400 mt-2">sachin.jadhav@vit.edu</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-slate-800/80 pt-3 text-center text-xs text-slate-400">
+            Department of Engineering Sciences and Humanities (DESH) & Computer Engineering | Vishwakarma Institute of Technology, Pune
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 2: INTRODUCTION                      -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-2">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-book-open text-indigo-400"></i> INTRODUCTION
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Problem Background & Context</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-auto">
+            <!-- Box 1 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-2">The Current Bottleneck</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Traditional campus placement management is heavily reliant on static, unnormalized spreadsheets. During active placement drives, placement officers struggle to handle dynamic shifts in recruiter cutoffs, leading to manual errors and delays.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-rose-300 font-mono">
+                    High manual overhead & error-prone
+                </div>
+            </div>
+
+            <!-- Box 2 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-2">The "Black-Box" Rejection</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Existing predictive tools merely return a binary "Pass" or "Fail" eligibility output. Ineligible students receive zero feedback on why they were disqualified and have no quantitative visibility into their skill deficiencies.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-amber-300 font-mono">
+                    Zero actionable feedback for candidates
+                </div>
+            </div>
+
+            <!-- Box 3 -->
+            <div class="bg-gradient-to-br from-indigo-950/60 to-slate-900 border border-indigo-500/40 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-2">Our Proposed Solution</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        An intelligent, end-to-end software platform powered by a 3NF Relational Database (MySQL) and Machine Learning. Computes an objective <strong>Placement Readiness Index (0–100)</strong>, checks live eligibility, and pinpoints exact numerical skill gaps.
+                    </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-indigo-500/30 text-[11px] text-indigo-300 font-mono">
+                    Data-driven, transparent & dynamic
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Siddhesh Bhosale</span>
+            <span>VIT SY-K-17 | Mid-Sem Review</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 3: OBJECTIVES                        -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-3">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-bullseye text-indigo-400"></i> PROJECT OBJECTIVES
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Defined & Targeted Scope</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex items-start gap-4">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">1</div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Relational 3NF Database Modeling</h4>
+                    <p class="text-xs text-slate-300 mt-1">Design and implement a Third Normal Form (3NF) relational database in MySQL with primary/foreign key constraints, replacing unnormalized spreadsheets.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex items-start gap-4">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">2</div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Continuous Placement Readiness Index (0–100)</h4>
+                    <p class="text-xs text-slate-300 mt-1">Train an ML-driven predictive classifier (Random Forest) that calculates a granular preparedness score and predicts tier placement probability.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex items-start gap-4">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">3</div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Real-Time Dynamic Recruiter Eligibility</h4>
+                    <p class="text-xs text-slate-300 mt-1">Enable placement officers (TPOs) to update CGPA, backlog thresholds, and coding score requirements in MySQL dynamically without restarting the platform.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex items-start gap-4">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0">4</div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Actionable Skill-Gap Diagnostics Engine</h4>
+                    <p class="text-xs text-slate-300 mt-1">Calculate exact numerical deficits for disqualified students (e.g., "DSA score is 6.2% below cutoff") to guide student corrective preparation.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex items-start gap-4">
+                <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">5</div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Phase 2: Speech Fluency & Explainable AI</h4>
+                    <p class="text-xs text-slate-300 mt-1">Incorporate Librosa acoustic signal analysis for interview vocal cadence and SHAP TreeExplainer for transparent feature attribution.</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex items-start gap-4">
+                <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-sm shrink-0">6</div>
+                <div>
+                    <h4 class="text-sm font-bold text-white">Institutional Placement Analytics</h4>
+                    <p class="text-xs text-slate-300 mt-1">Equip college administration with multi-tiered reports, branch-wise hiring statistics, and recruiter preference maps.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Meghraj Sirsat</span>
+            <span>VIT SY-K-17 | Objectives</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 4: FEATURES - STUDENT MODULE         -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-4">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-graduation-cap text-indigo-400"></i> FEATURES: STUDENT MODULE (50% DELIVERED)
+            </h2>
+            <span class="px-2.5 py-0.5 rounded-full text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Phase 1 Implemented</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+            <!-- Feature Card 1 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-xl">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Continuous Placement Readiness Score (0–100)</h3>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Evaluates multi-dimensional academic & coding metrics (CGPA, DSA assessment, LeetCode solved, project count, backlogs) through a trained Random Forest model. Categorizes candidates into <em>Tier 1 Product</em>, <em>Tier 2 Core</em>, or <em>Mass Recruiter</em>.
+                </p>
+            </div>
+
+            <!-- Feature Card 2 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-xl">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Instant Dynamic Drive Screening</h3>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Students can browse active placement drives (e.g., Google India, Microsoft IDC, Barclays). The system automatically evaluates student metrics against live SQL database cutoffs and labels them as <strong>ELIGIBLE</strong>, <strong>BORDERLINE</strong>, or <strong>INELIGIBLE</strong>.
+                </p>
+            </div>
+
+            <!-- Feature Card 3 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-xl">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Granular Numerical Skill-Gap Deficits</h3>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Eliminates blind rejections. Disqualified students receive an instant modal displaying exact shortfalls: <em>"DSA score is 5.0 pts below cutoff"</em>, <em>"CGPA deficit of 0.85"</em>, or <em>"1 Active backlog violates company zero-backlog policy"</em>.
+                </p>
+            </div>
+
+            <!-- Feature Card 4 -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-xl">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Profile Simulation & Real-Time Recalculation</h3>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Students can simulate improvements (e.g., solving 100 more LeetCode problems or clearing a backlog) to see their Readiness Index recalculate dynamically in real time before formal placement drives commence.
+                </p>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Soham Ombale</span>
+            <span>VIT SY-K-17 | Student Module</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 5: FEATURES - TPO MODULE & ADVANCED  -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-5">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-shield-halved text-indigo-400"></i> FEATURES: TPO MODULE & 50% SCOPE
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Governance & System Architecture</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto">
+            <!-- TPO Features -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie"></i> 2. Placement Officer (TPO) Module
+                </h3>
+                <ul class="space-y-3 text-xs text-slate-300">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check-circle text-emerald-400 mt-0.5"></i>
+                        <span><strong>Real-Time Criteria Configuration:</strong> TPOs can update CGPA cutoffs, max backlogs, and DSA scores in MySQL without restarting the server.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check-circle text-emerald-400 mt-0.5"></i>
+                        <span><strong>Active Drive Management:</strong> Add, activate, or archive campus drives with package (LPA), job roles, and allowed branches.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check-circle text-emerald-400 mt-0.5"></i>
+                        <span><strong>Automated Candidate Verification:</strong> Real-time cohort applicant filtering into Eligible, Borderline, and Ineligible pools.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-check-circle text-emerald-400 mt-0.5"></i>
+                        <span><strong>Role-Based Access Control (RBAC):</strong> Strict session security separating administrative privileges from student profiles.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 50% Scope Summary Box -->
+            <div class="bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group"></i> 3. Current 50% Milestone Matrix
+                    </h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between items-center p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-300">3NF Relational Database (MySQL)</span>
+                            <span class="text-emerald-400 font-bold font-mono">100% COMPLETE</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-300">ML Placement Readiness Classifier</span>
+                            <span class="text-emerald-400 font-bold font-mono">100% COMPLETE</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-300">Dynamic Recruiter Criteria Engine</span>
+                            <span class="text-emerald-400 font-bold font-mono">100% COMPLETE</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-300">Actionable Skill-Gap Diagnostics</span>
+                            <span class="text-emerald-400 font-bold font-mono">100% COMPLETE</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-300">Acoustic Signal & SHAP XAI Deep-Dive</span>
+                            <span class="text-amber-400 font-bold font-mono">PHASE 2 (REVIEW 2)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                    Verified through automated test suite (<code>test_system.py</code>) and CLI runner.
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Arpit Tale</span>
+            <span>VIT SY-K-17 | TPO Module & Scope</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 6: LITERATURE REVIEW (PART 1)        -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-6">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-newspaper text-indigo-400"></i> LITERATURE REVIEW (PART 1)
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Papers 1 to 4 Comparative Analysis</span>
+        </div>
+
+        <div class="my-auto overflow-hidden rounded-2xl border border-slate-800 shadow-2xl">
+            <table class="w-full text-xs text-left">
+                <thead class="bg-slate-900 text-slate-300 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-800">
+                    <tr>
+                        <th class="py-3 px-4 w-1/4">Paper Title & Reference</th>
+                        <th class="py-3 px-4 w-1/4">Focus / Methodology</th>
+                        <th class="py-3 px-4 w-1/4">Key Limitations</th>
+                        <th class="py-3 px-4 w-1/4 text-indigo-300">Our Innovation (Proposed)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/80 bg-slate-950/70">
+                    <tr>
+                        <td class="py-2.5 px-4 font-bold text-white">Paper 1: Student Placement Analysis Using ML (ICCES 2023)</td>
+                        <td class="py-2.5 px-4 text-slate-300">Evaluates ML models (Random Forest, Decision Trees) on static datasets.</td>
+                        <td class="py-2.5 px-4 text-rose-300">Functions purely as an offline script; lacks live application layer & interaction.</td>
+                        <td class="py-2.5 px-4 text-emerald-300 font-medium">Implements live web application connected to relational SQL DB computing dynamic Readiness Index.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-4 font-bold text-white">Paper 2: Campus Placement Eligibility Prediction (ESCI 2022)</td>
+                        <td class="py-2.5 px-4 text-slate-300">Framework mapping student credentials against company criteria.</td>
+                        <td class="py-2.5 px-4 text-rose-300">Uses hardcoded, static threshold cutoffs; cannot handle live criteria changes.</td>
+                        <td class="py-2.5 px-4 text-emerald-300 font-medium">Features Dynamic Recruiter Eligibility Engine allowing real-time cutoff updates in MySQL.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-4 font-bold text-white">Paper 3: Predictive Analysis of Campus Placement (IEEE Xplore)</td>
+                        <td class="py-2.5 px-4 text-slate-300">Categorizes companies into mass recruiters vs. product tiers.</td>
+                        <td class="py-2.5 px-4 text-rose-300">Scope limited to basic tiering; lacks relational schema or role-based portal.</td>
+                        <td class="py-2.5 px-4 text-emerald-300 font-medium">Integrates Relational Tier Mapping in SQL cross-referencing multi-metric student profiles.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-4 font-bold text-white">Paper 4: Maximizing Campus Placement Prediction (ICSGCC 2022)</td>
+                        <td class="py-2.5 px-4 text-slate-300">Analyzes multi-year historical placement trends using supervised ML.</td>
+                        <td class="py-2.5 px-4 text-rose-300">Processes flat, unnormalized spreadsheets without database constraints or security.</td>
+                        <td class="py-2.5 px-4 text-emerald-300 font-medium">Implements 3NF Normalized Relational Database (Students, Drives) with PK/FK data integrity.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Siddhesh Bhosale</span>
+            <span>VIT SY-K-17 | Literature Review 1</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 7: LITERATURE REVIEW (PART 2)        -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-7">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-newspaper text-indigo-400"></i> LITERATURE REVIEW (PART 2)
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Papers 5 & 6 Comparative Analysis</span>
+        </div>
+
+        <div class="my-auto overflow-hidden rounded-2xl border border-slate-800 shadow-2xl">
+            <table class="w-full text-xs text-left">
+                <thead class="bg-slate-900 text-slate-300 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-800">
+                    <tr>
+                        <th class="py-3 px-4 w-1/4">Paper Title & Reference</th>
+                        <th class="py-3 px-4 w-1/4">Focus / Methodology</th>
+                        <th class="py-3 px-4 w-1/4">Key Limitations</th>
+                        <th class="py-3 px-4 w-1/4 text-indigo-300">Our Innovation (Proposed)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/80 bg-slate-950/70">
+                    <tr>
+                        <td class="py-4 px-4 font-bold text-white">Paper 5: Student Placement Prediction & Analytics Framework (ICCCA 2022)</td>
+                        <td class="py-4 px-4 text-slate-300">Uses relational tables and rule-based classification to filter candidates and spot deficiencies.</td>
+                        <td class="py-4 px-4 text-rose-300">Outputs basic binary pass/fail eligibility without explaining how candidates can bridge identified skill gaps.</td>
+                        <td class="py-4 px-4 text-emerald-300 font-medium">Provides an <strong>Actionable Skill-Gap Diagnostics Engine</strong> that pinpoints exact missing numerical prerequisites (e.g. <em>"DSA score is 5.0 pts below threshold"</em>).</td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 font-bold text-white">Paper 6: Design and Implementation of Intelligent Placement System (ICESCS 2023)</td>
+                        <td class="py-4 px-4 text-slate-300">Develops web-based placement portal focused on administrative reporting and filtering.</td>
+                        <td class="py-4 px-4 text-rose-300">Acts primarily as a static portal; lacks individual student readiness scoring and interactive skill guidance.</td>
+                        <td class="py-4 px-4 text-emerald-300 font-medium">Combines <strong>Role-Based Access Control (RBAC)</strong> providing real-time criteria updates for admins alongside personalized ML readiness scoring for students.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Meghraj Sirsat</span>
+            <span>VIT SY-K-17 | Literature Review 2</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 8: OLD VS NEW (COMPARATIVE MATRIX)   -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-8">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-code-compare text-indigo-400"></i> OLD VS NEW: COMPARATIVE ANALYSIS
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Architectural & Functional Differentiation</span>
+        </div>
+
+        <div class="my-auto overflow-hidden rounded-2xl border border-slate-800 shadow-2xl">
+            <table class="w-full text-xs text-left">
+                <thead class="bg-slate-900 text-slate-300 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-800">
+                    <tr>
+                        <th class="py-3 px-5 w-1/2 text-rose-400"><i class="fa-solid fa-circle-xmark mr-1.5"></i> Traditional / Existing Systems</th>
+                        <th class="py-3 px-5 w-1/2 text-emerald-400"><i class="fa-solid fa-circle-check mr-1.5"></i> Our Smart Placement Analyser (New)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/80 bg-slate-950/70">
+                    <tr>
+                        <td class="py-2.5 px-5 text-slate-400">Manual, flat, unnormalized spreadsheets (Excel/Google Sheets)</td>
+                        <td class="py-2.5 px-5 text-slate-200 font-medium">Normalized <strong>Third Normal Form (3NF) MySQL Relational Database</strong> with strict constraints.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-5 text-slate-400">Generic binary Pass/Fail rejection without explanation</td>
+                        <td class="py-2.5 px-5 text-slate-200 font-medium"><strong>Actionable Skill-Gap Diagnostics</strong> pinpointing exact numerical shortfalls.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-5 text-slate-400">Hardcoded, static threshold cutoffs embedded in code</td>
+                        <td class="py-2.5 px-5 text-slate-200 font-medium"><strong>Dynamic Recruiter Criteria Engine</strong> in SQL configurable in real time by TPO.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-5 text-slate-400">Static, offline ML models on isolated datasets</td>
+                        <td class="py-2.5 px-5 text-slate-200 font-medium">Continuous <strong>Placement Readiness Index (0–100)</strong> calculated live on profile changes.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-5 text-slate-400">Manual student-company matching during active placement drives</td>
+                        <td class="py-2.5 px-5 text-slate-200 font-medium">Automated eligibility screening across all active campus drives with status branching.</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5 px-5 text-slate-400">No profile simulation or "what-if" testing for candidates</td>
+                        <td class="py-2.5 px-5 text-slate-200 font-medium">Real-time simulation allowing students to test score improvements and view updated readiness.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Soham Ombale</span>
+            <span>VIT SY-K-17 | Old vs New</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 9: METHODOLOGY                       -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-9">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-sitemap text-indigo-400"></i> METHODOLOGY & SYSTEM ARCHITECTURE
+            </h2>
+            <span class="text-xs font-mono text-slate-400">4-Stage Iterative Layered Architecture</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 my-auto">
+            <!-- Stage 1 -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">STAGE 1</span>
+                    <h4 class="text-xs font-bold text-white mt-2 mb-2">3NF Database Modeling</h4>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">
+                        Restructures placement data into 3NF normalized tables: <code>users</code>, <code>students</code>, <code>companies</code>, <code>placement_drives</code>, <code>drive_criteria</code>. Enforces primary/foreign keys to guarantee data integrity.
+                    </p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] text-emerald-400 font-mono">
+                    ✓ 100% Implemented (MySQL)
+                </div>
+            </div>
+
+            <!-- Stage 2 -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">STAGE 2</span>
+                    <h4 class="text-xs font-bold text-white mt-2 mb-2">ML Predictive Engine</h4>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">
+                        Feeds student feature vectors (CGPA, DSA score, LeetCode, backlogs, projects) into a trained <strong>Random Forest Regressor & Classifier</strong>. Generates calibrated Placement Readiness Index (0–100) & tier probabilities.
+                    </p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] text-emerald-400 font-mono">
+                    ✓ 100% Implemented (Scikit-Learn)
+                </div>
+            </div>
+
+            <!-- Stage 3 -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">STAGE 3</span>
+                    <h4 class="text-xs font-bold text-white mt-2 mb-2">Dynamic Criteria Evaluation</h4>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">
+                        Fetches live recruiter requirements from SQL. Simultaneously evaluates CGPA, backlogs, coding thresholds, and eligible branches. Branches output into: <em>Eligible</em>, <em>Borderline</em>, or <em>Ineligible</em>.
+                    </p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] text-emerald-400 font-mono">
+                    ✓ 100% Implemented (Python SQL)
+                </div>
+            </div>
+
+            <!-- Stage 4 -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col justify-between">
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">STAGE 4</span>
+                    <h4 class="text-xs font-bold text-white mt-2 mb-2">Skill-Gap Diagnostic Engine</h4>
+                    <p class="text-[11px] text-slate-300 leading-relaxed">
+                        Calculates exact arithmetic deficits for failed checks. Pinpoints specific deficiencies (e.g. <em>"Needs ~165 more LeetCode problems solved"</em> or <em>"Clear 1 active backlog"</em>) to guide candidate upskilling.
+                    </p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-800 text-[10px] text-emerald-400 font-mono">
+                    ✓ 100% Implemented (Diagnostic Core)
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Arpit Tale</span>
+            <span>VIT SY-K-17 | Methodology</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 10: FUTURE SCOPE / 50% ROADMAP       -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-10">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> FUTURE SCOPE & REVIEW 2 ROADMAP
+            </h2>
+            <span class="text-xs font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">Phase 2 Deliverables (Remaining 50%)</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto">
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-1.5 text-indigo-400">
+                    <i class="fa-solid fa-microphone-lines text-sm"></i>
+                    <h4 class="text-xs font-bold text-white">1. Acoustic Speech Signal Processing (Librosa)</h4>
+                </div>
+                <p class="text-[11px] text-slate-300">
+                    Evaluate mock interview audio recordings to extract fundamental pitch ($F_0$), silent pause duration ratio, and speaking cadence (WPM) to generate an objective soft-skills score.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-1.5 text-purple-400">
+                    <i class="fa-solid fa-brain text-sm"></i>
+                    <h4 class="text-xs font-bold text-white">2. Full Explainable AI (SHAP TreeExplainer)</h4>
+                </div>
+                <p class="text-[11px] text-slate-300">
+                    Render interactive waterfall and force attribution charts showing students exactly how each academic or coding feature positively or negatively influenced their prediction score.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-1.5 text-amber-400">
+                    <i class="fa-solid fa-chart-line text-sm"></i>
+                    <h4 class="text-xs font-bold text-white">3. Multi-Tiered Institutional Analytics</h4>
+                </div>
+                <p class="text-[11px] text-slate-300">
+                    Provide college leadership and TPOs with 5-year historical hiring trends, salary distribution histograms, and departmental placement forecasting reports.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4">
+                <div class="flex items-center gap-2 mb-1.5 text-emerald-400">
+                    <i class="fa-solid fa-route text-sm"></i>
+                    <h4 class="text-xs font-bold text-white">4. Automated Dynamic Remediation Roadmap</h4>
+                </div>
+                <p class="text-[11px] text-slate-300">
+                    Auto-generate 4-week tailored DSA study sprints, curated algorithmic problem links, and distributed systems portfolio blueprints based on candidate deficiencies.
+                </p>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Speaker: Siddhesh Bhosale</span>
+            <span>VIT SY-K-17 | Review 2 Scope</span>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SLIDE 11: CONCLUSION & THANK YOU           -->
+    <!-- ========================================== -->
+    <section class="slide" id="slide-11">
+        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+            <h2 class="text-2xl font-black text-white tracking-tight flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-emerald-400"></i> CONCLUSION & 50% MILESTONE VERIFICATION
+            </h2>
+            <span class="text-xs font-mono text-slate-400">Review 1 Summary</span>
+        </div>
+
+        <div class="my-auto text-center max-w-3xl mx-auto">
+            <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <h2 class="text-4xl font-black text-white tracking-tight mb-2">THANK YOU</h2>
+            <p class="text-sm text-slate-300 mb-6">
+                The 50% Project Milestone (Review 1) has been successfully designed, implemented, and empirically verified using <strong>Python</strong> and <strong>MySQL</strong>.
+            </p>
+
+            <div class="grid grid-cols-3 gap-4 text-left mb-6">
+                <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-xl">
+                    <div class="text-[10px] text-slate-400 font-mono">DATABASE LAYER</div>
+                    <div class="text-xs font-bold text-white mt-0.5">9 Tables in 3NF Schema</div>
+                </div>
+                <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-xl">
+                    <div class="text-[10px] text-slate-400 font-mono">PREDICTIVE ML</div>
+                    <div class="text-xs font-bold text-white mt-0.5">Readiness Index 0–100</div>
+                </div>
+                <div class="p-3 bg-slate-900/80 border border-slate-800 rounded-xl">
+                    <div class="text-[10px] text-slate-400 font-mono">ELIGIBILITY ENGINE</div>
+                    <div class="text-xs font-bold text-white mt-0.5">Real-Time SQL Updates</div>
+                </div>
+            </div>
+
+            <div class="inline-flex items-center gap-4 text-xs text-slate-400 bg-slate-900 border border-slate-800 rounded-full px-5 py-2">
+                <span><i class="fa-solid fa-user-graduate text-indigo-400 mr-1"></i> Team: Siddhesh, Meghraj, Soham, Arpit</span>
+                <span>•</span>
+                <span><i class="fa-solid fa-user-tie text-purple-400 mr-1"></i> Guide: Prof. Sachin Jadhav</span>
+            </div>
+        </div>
+
+        <div class="border-t border-slate-800/80 pt-3 flex justify-between text-xs text-slate-400">
+            <span>Department of Computer Engineering | VIT Pune</span>
+            <span class="text-indigo-400 font-semibold">Questions & Feedback Welcome</span>
+        </div>
+    </section>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 11;
+
+        function showSlide(index) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById('slide-' + index);
+            if (target) {
+                target.classList.add('active');
+                currentSlide = index;
+                document.getElementById('currentSlideNum').innerText = currentSlide;
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullScreen();
+            } else if (e.key >= '1' && e.key <= '9') {
+                showSlide(parseInt(e.key));
+            }
+        });
+    </script>
+</body>
+</html>

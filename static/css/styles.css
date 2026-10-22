@@ -1,0 +1,431 @@
+/* Custom App Styles - Vibrant Tech Theme & Complete Daylight Mode */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* Vibrant Glowing Cards */
+@keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 18px rgba(99, 102, 241, 0.25); }
+    50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.45); }
+}
+
+.glow-card {
+    animation: glowPulse 3s infinite ease-in-out;
+}
+
+/* Radiant Ambient Glows */
+.ambient-glow-indigo {
+    background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 70%);
+}
+
+.ambient-glow-purple {
+    background: radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.20) 0%, transparent 60%);
+}
+
+/* ==========================================================================
+   DAYLIGHT / LIGHT MODE COMPREHENSIVE OVERRIDES
+   Ensures zero dark artifacts, readable typography, and bright, clean styling
+   ========================================================================== */
+body.daylight-mode {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+}
+
+/* 1. Header & Navigation */
+body.daylight-mode header {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+body.daylight-mode header a,
+body.daylight-mode header span {
+    color: #0f172a !important;
+}
+body.daylight-mode header nav a {
+    color: #475569 !important;
+}
+body.daylight-mode header nav a:hover {
+    background: #f1f5f9 !important;
+    color: #4338ca !important;
+}
+body.daylight-mode header nav a.bg-indigo-600 {
+    background: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4338ca !important;
+}
+body.daylight-mode #daylight-toggle-btn {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #4338ca !important;
+}
+
+/* 2. Top Hero & Callout Banners */
+body.daylight-mode div[class*="bg-gradient-to-r"]:not(.w-16):not(.w-10):not(.avatar):not(button):not(a),
+body.daylight-mode div[class*="from-indigo-"]:not(.w-16):not(.w-10):not(button):not(a),
+body.daylight-mode div[class*="from-purple-"]:not(.w-16):not(.w-10):not(button):not(a),
+body.daylight-mode div[class*="from-blue-"]:not(.w-16):not(.w-10):not(button):not(a),
+body.daylight-mode div[class*="from-emerald-"]:not(.w-16):not(.w-10):not(button):not(a) {
+    background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #f0fdf4 100%) !important;
+    background-image: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #f0fdf4 100%) !important;
+    border: 1px solid #c7d2fe !important;
+    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.08) !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] h1,
+body.daylight-mode div[class*="bg-gradient-to-r"] h2,
+body.daylight-mode div[class*="bg-gradient-to-r"] h3 {
+    color: #1e1b4b !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] p,
+body.daylight-mode div[class*="bg-gradient-to-r"] span {
+    color: #334155 !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] strong {
+    color: #0f172a !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] i[class*="text-indigo-"],
+body.daylight-mode div[class*="bg-gradient-to-r"] i[class*="text-purple-"],
+body.daylight-mode div[class*="bg-gradient-to-r"] i[class*="text-blue-"] {
+    color: #4f46e5 !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] div[class*="bg-slate-"] {
+    background-color: #ffffff !important;
+    border: 1px solid #c7d2fe !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] div[class*="bg-slate-"] * {
+    color: #1e293b !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] a[class*="bg-slate-"],
+body.daylight-mode div[class*="bg-gradient-to-r"] button[class*="bg-slate-"] {
+    background-color: #ffffff !important;
+    border: 1px solid #c7d2fe !important;
+    color: #1e293b !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] a[class*="bg-slate-"]:hover,
+body.daylight-mode div[class*="bg-gradient-to-r"] button[class*="bg-slate-"]:hover {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+body.daylight-mode div[class*="bg-gradient-to-r"] a[class*="bg-slate-"] * {
+    color: #1e293b !important;
+}
+
+/* 3. Cards & Container Surfaces (Slate backgrounds -> Crisp White) */
+body.daylight-mode .bg-slate-950,
+body.daylight-mode .bg-slate-900,
+body.daylight-mode .bg-slate-850,
+body.daylight-mode .bg-slate-800,
+body.daylight-mode .bg-slate-750,
+body.daylight-mode .bg-slate-700,
+body.daylight-mode [class*="bg-slate-950"],
+body.daylight-mode [class*="bg-slate-900"],
+body.daylight-mode [class*="bg-slate-850"],
+body.daylight-mode [class*="bg-slate-800"],
+body.daylight-mode [class*="bg-slate-750"],
+body.daylight-mode [class*="bg-slate-700"] {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Typography Overrides */
+body.daylight-mode h1,
+body.daylight-mode h2,
+body.daylight-mode h3,
+body.daylight-mode h4 {
+    color: #0f172a !important;
+}
+body.daylight-mode p {
+    color: #334155 !important;
+}
+body.daylight-mode .text-slate-200,
+body.daylight-mode .text-slate-300 {
+    color: #1e293b !important;
+}
+body.daylight-mode .text-slate-400 {
+    color: #475569 !important;
+}
+body.daylight-mode .text-slate-500 {
+    color: #64748b !important;
+}
+body.daylight-mode .text-white:not(.text-keep-white) {
+    color: #0f172a !important;
+}
+
+/* 4. PROTECT BUTTONS (Colored buttons MUST retain white text!) */
+body.daylight-mode .bg-indigo-600,
+body.daylight-mode .bg-indigo-500,
+body.daylight-mode .bg-emerald-600,
+body.daylight-mode .bg-emerald-500,
+body.daylight-mode .bg-purple-600,
+body.daylight-mode button[type="submit"],
+body.daylight-mode a[class*="bg-indigo-600"],
+body.daylight-mode button[class*="bg-indigo-600"] {
+    color: #ffffff !important;
+    background-color: #4f46e5 !important;
+}
+body.daylight-mode .bg-emerald-600,
+body.daylight-mode a[class*="bg-emerald-600"],
+body.daylight-mode button[class*="bg-emerald-600"] {
+    background-color: #059669 !important;
+    color: #ffffff !important;
+}
+body.daylight-mode .bg-purple-600,
+body.daylight-mode a[class*="bg-purple-600"],
+body.daylight-mode button[class*="bg-purple-600"] {
+    background-color: #7e22ce !important;
+    color: #ffffff !important;
+}
+body.daylight-mode .bg-rose-600,
+body.daylight-mode a[class*="bg-rose-600"],
+body.daylight-mode button[class*="bg-rose-600"] {
+    background-color: #e11d48 !important;
+    color: #ffffff !important;
+}
+body.daylight-mode .bg-indigo-600 *,
+body.daylight-mode .bg-emerald-600 *,
+body.daylight-mode .bg-purple-600 *,
+body.daylight-mode .bg-rose-600 *,
+body.daylight-mode button[type="submit"] * {
+    color: #ffffff !important;
+}
+
+/* Action button gradient preservation */
+body.daylight-mode button[class*="bg-gradient-to-r"],
+body.daylight-mode a[class*="bg-gradient-to-r"] {
+    background-image: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #7e22ce 100%) !important;
+    color: #ffffff !important;
+}
+body.daylight-mode button[class*="bg-gradient-to-r"] *,
+body.daylight-mode a[class*="bg-gradient-to-r"] * {
+    color: #ffffff !important;
+}
+
+/* Secondary Cancel / Back / Inspect Buttons */
+body.daylight-mode a.bg-slate-750,
+body.daylight-mode a.bg-slate-700,
+body.daylight-mode a.bg-slate-800,
+body.daylight-mode button.bg-slate-750,
+body.daylight-mode button.bg-slate-700,
+body.daylight-mode button.bg-slate-800,
+body.daylight-mode a[class*="bg-slate-700"],
+body.daylight-mode button[class*="bg-slate-700"],
+body.daylight-mode a[class*="bg-slate-800"],
+body.daylight-mode button[class*="bg-slate-800"] {
+    background-color: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+body.daylight-mode a.bg-slate-700:hover,
+body.daylight-mode button.bg-slate-700:hover,
+body.daylight-mode a.bg-slate-800:hover,
+body.daylight-mode button.bg-slate-800:hover,
+body.daylight-mode a[class*="bg-slate-700"]:hover,
+body.daylight-mode button[class*="bg-slate-700"]:hover,
+body.daylight-mode a[class*="bg-slate-800"]:hover,
+body.daylight-mode button[class*="bg-slate-800"]:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+body.daylight-mode a[class*="bg-slate-700"] *,
+body.daylight-mode button[class*="bg-slate-700"] *,
+body.daylight-mode a[class*="bg-slate-800"] *,
+body.daylight-mode button[class*="bg-slate-800"] * {
+    color: #1e293b !important;
+}
+
+/* 5. Tables & Table Headers */
+body.daylight-mode thead,
+body.daylight-mode thead tr,
+body.daylight-mode th,
+body.daylight-mode [class*="bg-slate-900/80"],
+body.daylight-mode [class*="bg-slate-900/60"],
+body.daylight-mode thead[class*="bg-slate-"] {
+    background-color: #f1f5f9 !important;
+    background-image: none !important;
+    color: #1e293b !important;
+    border-color: #cbd5e1 !important;
+    font-weight: 700 !important;
+}
+body.daylight-mode thead th {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+body.daylight-mode tbody tr {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    color: #1e293b !important;
+}
+body.daylight-mode tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+body.daylight-mode td {
+    color: #1e293b !important;
+    border-color: #f1f5f9 !important;
+}
+body.daylight-mode td div[class*="bg-slate-"] {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #4338ca !important;
+}
+body.daylight-mode td div[class*="bg-slate-"] * {
+    color: #4338ca !important;
+}
+
+/* 6. Form Inputs & Selects */
+body.daylight-mode input:not([type="submit"]):not([type="button"]):not([type="radio"]):not([type="checkbox"]),
+body.daylight-mode select,
+body.daylight-mode textarea {
+    background-color: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+body.daylight-mode input[type="file"] {
+    background-color: #f8fafc !important;
+    border: 1.5px solid #cbd5e1 !important;
+    color: #334155 !important;
+}
+body.daylight-mode input:focus,
+body.daylight-mode select:focus,
+body.daylight-mode textarea:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+body.daylight-mode input:disabled,
+body.daylight-mode input[readonly] {
+    background-color: #f1f5f9 !important;
+    border-color: #e2e8f0 !important;
+    color: #64748b !important;
+}
+
+/* 7. Modals */
+body.daylight-mode .fixed > div {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 8. Circular Readiness Gauge in Light Mode */
+body.daylight-mode svg circle.text-slate-700,
+body.daylight-mode svg circle.text-slate-800 {
+    color: #e2e8f0 !important;
+}
+
+/* 9. Badges & Tags */
+body.daylight-mode .bg-purple-500\/25,
+body.daylight-mode .bg-purple-500\/20 {
+    background-color: #f3e8ff !important;
+    color: #7e22ce !important;
+    border-color: #d8b4fe !important;
+}
+body.daylight-mode .bg-blue-500\/25,
+body.daylight-mode .bg-blue-500\/20 {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe !important;
+}
+body.daylight-mode .bg-emerald-500\/25,
+body.daylight-mode .bg-emerald-500\/20 {
+    background-color: #ecfdf5 !important;
+    color: #047857 !important;
+    border-color: #a7f3d0 !important;
+}
+body.daylight-mode .bg-amber-500\/25,
+body.daylight-mode .bg-amber-500\/20 {
+    background-color: #fffbeb !important;
+    color: #b45309 !important;
+    border-color: #fde68a !important;
+}
+body.daylight-mode .bg-rose-500\/25,
+body.daylight-mode .bg-rose-500\/20 {
+    background-color: #fff1f2 !important;
+    color: #be123c !important;
+    border-color: #fecdd3 !important;
+}
+body.daylight-mode span[class*="bg-slate-700"],
+body.daylight-mode span[class*="bg-slate-800"] {
+    background-color: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+}
+
+/* 10. Speech Lab Specific */
+body.daylight-mode #micIndicator {
+    background-color: #eef2ff !important;
+    border-color: #818cf8 !important;
+    color: #4f46e5 !important;
+}
+body.daylight-mode #recordingTimer {
+    color: #0f172a !important;
+}
+body.daylight-mode #recordingStatus {
+    color: #475569 !important;
+}
+body.daylight-mode #fluencyScoreVal {
+    color: #0f172a !important;
+}
+body.daylight-mode #wpmVal {
+    color: #4f46e5 !important;
+}
+body.daylight-mode [class*="bg-indigo-950"] {
+    background-color: #eff6ff !important;
+    border-color: #bfdbfe !important;
+    color: #1e3a8a !important;
+}
+body.daylight-mode [class*="bg-indigo-950"] * {
+    color: #1e3a8a !important;
+}
+
+/* 11. DSA Quiz Interactive Selection & Answers */
+body.daylight-mode label:has(input[type="radio"]:checked) div,
+body.daylight-mode input[type="radio"]:checked ~ div {
+    background-color: #eef2ff !important;
+    border-color: #6366f1 !important;
+}
+body.daylight-mode label:has(input[type="radio"]:checked) div span,
+body.daylight-mode input[type="radio"]:checked ~ div span {
+    color: #4338ca !important;
+}
+body.daylight-mode .has-\[\:checked\]\:bg-indigo-950\/40:has(:checked) {
+    background-color: #eef2ff !important;
+    border-color: #6366f1 !important;
+}
+
+/* 12. Footer */
+body.daylight-mode footer {
+    background-color: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    color: #475569 !important;
+}
+body.daylight-mode footer p {
+    color: #475569 !important;
+}
+body.daylight-mode footer strong,
+body.daylight-mode footer .text-slate-200 {
+    color: #0f172a !important;
+}

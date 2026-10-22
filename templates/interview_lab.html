@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+{% block title %}Interview Speech Lab (Librosa) | Smart Placement Analyser{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Top Banner -->
+    <div class="bg-gradient-to-r from-blue-900/80 via-slate-800 to-indigo-900/80 border border-blue-400/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/25 text-blue-200 border border-blue-400/40 text-xs font-mono font-semibold mb-2">
+                    <i class="fa-solid fa-waveform-lines"></i> Librosa Acoustic Signal Engine
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    Objective Interview Speech Fluency Lab
+                </h1>
+                <p class="text-xs text-slate-300 mt-1 max-w-2xl">
+                    Analyzes vocal pitch ($F_0$), speech-to-pause ratios, speaking rate (WPM), and projection dynamics to compute an objective soft-skills placement score.
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 text-center shadow-lg">
+                    <div class="text-[10px] text-slate-300 uppercase font-semibold">Current Soft-Skills</div>
+                    <div class="text-xl font-bold text-blue-400 font-mono" id="currentSoftScore">{{ student.soft_skills_score if student.soft_skills_score is not none else 0.0 }}/100</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Recording & Upload Workspace -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Recorder Panel -->
+        <div class="lg:col-span-6 bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 shadow-xl space-y-5">
+            <div>
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-microphone text-indigo-400"></i>
+                    Live Microphone Speech Evaluator
+                </h2>
+                <p class="text-xs text-slate-400">Select a prompt below, click Start Recording, speak your response, and click Finish for Librosa acoustic analysis.</p>
+            </div>
+
+            <!-- Topic Selector -->
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Interview Question / Prompt</label>
+                <select id="promptSelect" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    {% for topic in topics %}
+                        <option value="{{ topic }}">{{ topic }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Visual Recording Interface -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center space-y-4 text-center">
+                <!-- Recording Animation Indicator -->
+                <div id="micIndicator" class="w-20 h-20 rounded-full bg-indigo-500/10 border-2 border-indigo-500/30 flex items-center justify-center text-indigo-400 text-2xl transition-all">
+                    <i class="fa-solid fa-microphone" id="micIcon"></i>
+                </div>
+
+                <div id="recordingTimer" class="font-mono text-2xl font-bold text-slate-300">
+                    00:00
+                </div>
+
+                <div id="recordingStatus" class="text-xs text-slate-400">
+                    Ready to record your mock answer.
+                </div>
+
+                <!-- Recorder Controls -->
+                <div class="flex items-center gap-3">
+                    <button id="startRecordBtn" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-circle"></i> Start Recording
+                    </button>
+                    <button id="stopRecordBtn" disabled class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 disabled:text-slate-600 text-white text-xs font-semibold rounded-xl shadow-lg transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-stop"></i> Stop & Analyze
+                    </button>
+                </div>
+
+                <!-- Audio Playback Preview -->
+                <audio id="audioPreview" controls class="w-full mt-3 hidden"></audio>
+            </div>
+
+            <!-- Alternative: Direct Audio File Upload (.wav, .mp3) -->
+            <div class="pt-4 border-t border-slate-800">
+                <div class="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-1.5">
+                    <i class="fa-solid fa-cloud-arrow-up text-indigo-400"></i> Or Upload Pre-Recorded Audio File (.wav, .mp3)
+                </div>
+                <form id="uploadAudioForm" class="flex items-center gap-3">
+                    <input type="file" id="audioFileInput" accept="audio/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-indigo-400 hover:file:bg-slate-700 cursor-pointer">
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md transition-all whitespace-nowrap">
+                        Analyze File
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Real-Time Acoustic Feedback & Diagnostics Panel -->
+        <div class="lg:col-span-6 space-y-4">
+
+            <!-- Result Card -->
+            <div id="resultCard" class="bg-slate-950/80 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-square-poll-vertical text-indigo-400"></i>
+                        Acoustic Signal Diagnostics
+                    </h3>
+                    <span id="confidenceBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                        Awaiting Recording
+                    </span>
+                </div>
+
+                <!-- Score Meter -->
+                <div class="flex items-center justify-between bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
+                    <div>
+                        <div class="text-xs text-slate-400">Composite Fluency Score</div>
+                        <div class="text-3xl font-extrabold text-white mt-0.5" id="fluencyScoreVal">--<span class="text-sm font-normal text-slate-400">/100</span></div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400">Estimated Speaking Rate</div>
+                        <div class="text-2xl font-bold text-indigo-400 mt-0.5" id="wpmVal">-- <span class="text-xs text-slate-400 font-normal">WPM</span></div>
+                    </div>
+                </div>
+
+                <!-- 4 Key Acoustic Parameters -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3">
+                        <div class="text-[11px] text-slate-400">Pitch Mean ($F_0$)</div>
+                        <div class="text-base font-bold text-white font-mono mt-0.5" id="pitchMeanVal">-- Hz</div>
+                        <div class="text-[10px] text-slate-500" id="pitchStdVal">Std Dev: -- Hz</div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3">
+                        <div class="text-[11px] text-slate-400">Pause / Silence Ratio</div>
+                        <div class="text-base font-bold text-white font-mono mt-0.5" id="pauseRatioVal">--%</div>
+                        <div class="text-[10px] text-slate-500" id="pauseDurationVal">Pause Time: -- s</div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3">
+                        <div class="text-[11px] text-slate-400">Active Speech Duration</div>
+                        <div class="text-base font-bold text-white font-mono mt-0.5" id="speechDurationVal">-- s</div>
+                        <div class="text-[10px] text-slate-500" id="totalDurationVal">Total: -- s</div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800/80 rounded-xl p-3">
+                        <div class="text-[11px] text-slate-400">Vocal Projection (RMS)</div>
+                        <div class="text-base font-bold text-white font-mono mt-0.5" id="vocalEnergyVal">--</div>
+                        <div class="text-[10px] text-slate-500">Root Mean Square Energy</div>
+                    </div>
+                </div>
+
+                <!-- Actionable Qualitative Feedback Tips -->
+                <div class="bg-indigo-950/20 border border-indigo-500/20 rounded-2xl p-4 space-y-2">
+                    <div class="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        Acoustic Coaching Recommendations
+                    </div>
+                    <ul class="space-y-1.5 text-xs text-slate-300 list-disc list-inside" id="feedbackList">
+                        <li>Record or upload a speech sample to receive instant acoustic feedback on vocal pace, pauses, and projection.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Past History -->
+            <div class="bg-slate-950/80 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-3">
+                <h3 class="text-sm font-bold text-white">Recent Speech Evaluations (3NF Audit Log)</h3>
+                <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    {% for ev in past_evals %}
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3 text-xs flex items-center justify-between">
+                        <div>
+                            <div class="font-semibold text-slate-200 truncate max-w-xs">{{ ev.prompt_topic }}</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5 font-mono">
+                                {{ ev.speaking_rate_wpm }} WPM | Pause: {{ ev.pause_ratio }}% | Pitch: {{ ev.pitch_mean_hz }} Hz
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-block px-2 py-0.5 rounded-lg bg-blue-500/20 text-blue-300 font-bold font-mono">
+                                {{ ev.soft_skills_score }}/100
+                            </span>
+                            <div class="text-[10px] text-slate-500 mt-0.5">{{ ev.confidence_level }}</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-xs text-slate-400 py-3 text-center">No past audio evaluations found. Try recording your first answer above!</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Audio Recording & AJAX Script -->
+<script>
+let mediaRecorder;
+let audioChunks = [];
+let timerInterval;
+let secondsRecorded = 0;
+
+const startBtn = document.getElementById('startRecordBtn');
+const stopBtn = document.getElementById('stopRecordBtn');
+const micIndicator = document.getElementById('micIndicator');
+const micIcon = document.getElementById('micIcon');
+const timerEl = document.getElementById('recordingTimer');
+const statusEl = document.getElementById('recordingStatus');
+const previewAudio = document.getElementById('audioPreview');
+
+startBtn.addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            previewAudio.src = URL.createObjectURL(audioBlob);
+            previewAudio.classList.remove('hidden');
+            await submitAudioBlob(audioBlob);
+        };
+
+        mediaRecorder.start();
+        secondsRecorded = 0;
+        timerInterval = setInterval(() => {
+            secondsRecorded++;
+            const mins = String(Math.floor(secondsRecorded / 60)).padStart(2, '0');
+            const secs = String(secondsRecorded % 60).padStart(2, '0');
+            timerEl.textContent = `${mins}:${secs}`;
+        }, 1000);
+
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        micIndicator.classList.add('bg-rose-500/20', 'border-rose-500', 'animate-pulse');
+        micIcon.classList.add('text-rose-400');
+        statusEl.textContent = 'Recording active speech... speak clearly.';
+    } catch (err) {
+        alert('Microphone access denied or not supported in this browser: ' + err.message);
+    }
+});
+
+stopBtn.addEventListener('click', () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        clearInterval(timerInterval);
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        micIndicator.classList.remove('bg-rose-500/20', 'border-rose-500', 'animate-pulse');
+        micIcon.classList.remove('text-rose-400');
+        statusEl.textContent = 'Processing speech signal using Librosa...';
+    }
+});
+
+document.getElementById('uploadAudioForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('audioFileInput');
+    if (!fileInput.files.length) {
+        alert('Please choose an audio file (.wav or .mp3) to upload.');
+        return;
+    }
+    const file = fileInput.files[0];
+    await submitAudioBlob(file);
+});
+
+async function submitAudioBlob(blob) {
+    statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Running Librosa Acoustic Feature Extraction...';
+    const formData = new FormData();
+    formData.append('audio', blob, 'speech.wav');
+    formData.append('topic', document.getElementById('promptSelect').value);
+
+    try {
+        const response = await fetch('/api/analyze-audio', {
+            method: 'POST',
+            body: formData
+        });
+        const res = await response.json();
+        if (res.success) {
+            renderAcousticResults(res.data);
+            statusEl.textContent = 'Analysis complete! Soft skills score updated.';
+        } else {
+            alert('Analysis Error: ' + (res.error || 'Failed to analyze audio'));
+            statusEl.textContent = 'Error occurred during analysis.';
+        }
+    } catch (err) {
+        alert('Network or server error: ' + err.message);
+        statusEl.textContent = 'Server communication error.';
+    }
+}
+
+function renderAcousticResults(data) {
+    document.getElementById('confidenceBadge').textContent = data.confidence_level;
+    document.getElementById('fluencyScoreVal').innerHTML = `${data.soft_skills_score}<span class="text-sm font-normal text-slate-400">/100</span>`;
+    document.getElementById('wpmVal').innerHTML = `${data.speaking_rate_wpm} <span class="text-xs text-slate-400 font-normal">WPM</span>`;
+    document.getElementById('pitchMeanVal').textContent = `${data.pitch_mean_hz} Hz`;
+    document.getElementById('pitchStdVal').textContent = `Std Dev: ${data.pitch_std_hz} Hz`;
+    document.getElementById('pauseRatioVal').textContent = `${data.pause_ratio}%`;
+    document.getElementById('pauseDurationVal').textContent = `Pause Time: ${data.pause_duration} s`;
+    document.getElementById('speechDurationVal').textContent = `${data.speech_duration} s`;
+    document.getElementById('totalDurationVal').textContent = `Total: ${data.total_duration} s`;
+    document.getElementById('vocalEnergyVal').textContent = data.vocal_energy;
+
+    const currentScoreEl = document.getElementById('currentSoftScore');
+    if (currentScoreEl) currentScoreEl.textContent = `${data.soft_skills_score}/100`;
+
+    const feedbackList = document.getElementById('feedbackList');
+    feedbackList.innerHTML = '';
+    (data.feedback_notes || []).forEach(note => {
+        const li = document.createElement('li');
+        li.textContent = note;
+        feedbackList.appendChild(li);
+    });
+}
+</script>
+{% endblock %}
